@@ -121,10 +121,10 @@ update msg model =
                     { model | selectedOutputRange = value, yMax = 10, yMin = 0 }
 
                 "800 to 2500 °C" ->
-                    { model | selectedOutputRange = value, yMax = 2500, yMin = 0 }
+                    { model | selectedOutputRange = value, yMax = 2500, yMin = 800 }
 
                 "1000 to 2500 °C" ->
-                    { model | selectedOutputRange = value, yMax = 2500, yMin = 0 }
+                    { model | selectedOutputRange = value, yMax = 2500, yMin = 1000 }
 
                 "0 to 5000 °C" ->
                     { model | selectedOutputRange = value, yMax = 5000, yMin = 0 }

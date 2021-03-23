@@ -5239,11 +5239,11 @@ var $author$project$Calc$update = F2(
 					case '800 to 2500 °C':
 						return _Utils_update(
 							model,
-							{selectedOutputRange: value, yMax: 2500, yMin: 0});
+							{selectedOutputRange: value, yMax: 2500, yMin: 800});
 					case '1000 to 2500 °C':
 						return _Utils_update(
 							model,
-							{selectedOutputRange: value, yMax: 2500, yMin: 0});
+							{selectedOutputRange: value, yMax: 2500, yMin: 1000});
 					case '0 to 5000 °C':
 						return _Utils_update(
 							model,
