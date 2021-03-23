@@ -80,6 +80,190 @@ function A9(fun, a, b, c, d, e, f, g, h, i) {
 console.warn('Compiled in DEV mode. Follow the advice at https://elm-lang.org/0.19.1/optimize for better performance and smaller assets.');
 
 
+// EQUALITY
+
+function _Utils_eq(x, y)
+{
+	for (
+		var pair, stack = [], isEqual = _Utils_eqHelp(x, y, 0, stack);
+		isEqual && (pair = stack.pop());
+		isEqual = _Utils_eqHelp(pair.a, pair.b, 0, stack)
+		)
+	{}
+
+	return isEqual;
+}
+
+function _Utils_eqHelp(x, y, depth, stack)
+{
+	if (x === y)
+	{
+		return true;
+	}
+
+	if (typeof x !== 'object' || x === null || y === null)
+	{
+		typeof x === 'function' && _Debug_crash(5);
+		return false;
+	}
+
+	if (depth > 100)
+	{
+		stack.push(_Utils_Tuple2(x,y));
+		return true;
+	}
+
+	/**/
+	if (x.$ === 'Set_elm_builtin')
+	{
+		x = $elm$core$Set$toList(x);
+		y = $elm$core$Set$toList(y);
+	}
+	if (x.$ === 'RBNode_elm_builtin' || x.$ === 'RBEmpty_elm_builtin')
+	{
+		x = $elm$core$Dict$toList(x);
+		y = $elm$core$Dict$toList(y);
+	}
+	//*/
+
+	/**_UNUSED/
+	if (x.$ < 0)
+	{
+		x = $elm$core$Dict$toList(x);
+		y = $elm$core$Dict$toList(y);
+	}
+	//*/
+
+	for (var key in x)
+	{
+		if (!_Utils_eqHelp(x[key], y[key], depth + 1, stack))
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+var _Utils_equal = F2(_Utils_eq);
+var _Utils_notEqual = F2(function(a, b) { return !_Utils_eq(a,b); });
+
+
+
+// COMPARISONS
+
+// Code in Generate/JavaScript.hs, Basics.js, and List.js depends on
+// the particular integer values assigned to LT, EQ, and GT.
+
+function _Utils_cmp(x, y, ord)
+{
+	if (typeof x !== 'object')
+	{
+		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
+	}
+
+	/**/
+	if (x instanceof String)
+	{
+		var a = x.valueOf();
+		var b = y.valueOf();
+		return a === b ? 0 : a < b ? -1 : 1;
+	}
+	//*/
+
+	/**_UNUSED/
+	if (typeof x.$ === 'undefined')
+	//*/
+	/**/
+	if (x.$[0] === '#')
+	//*/
+	{
+		return (ord = _Utils_cmp(x.a, y.a))
+			? ord
+			: (ord = _Utils_cmp(x.b, y.b))
+				? ord
+				: _Utils_cmp(x.c, y.c);
+	}
+
+	// traverse conses until end of a list or a mismatch
+	for (; x.b && y.b && !(ord = _Utils_cmp(x.a, y.a)); x = x.b, y = y.b) {} // WHILE_CONSES
+	return ord || (x.b ? /*GT*/ 1 : y.b ? /*LT*/ -1 : /*EQ*/ 0);
+}
+
+var _Utils_lt = F2(function(a, b) { return _Utils_cmp(a, b) < 0; });
+var _Utils_le = F2(function(a, b) { return _Utils_cmp(a, b) < 1; });
+var _Utils_gt = F2(function(a, b) { return _Utils_cmp(a, b) > 0; });
+var _Utils_ge = F2(function(a, b) { return _Utils_cmp(a, b) >= 0; });
+
+var _Utils_compare = F2(function(x, y)
+{
+	var n = _Utils_cmp(x, y);
+	return n < 0 ? $elm$core$Basics$LT : n ? $elm$core$Basics$GT : $elm$core$Basics$EQ;
+});
+
+
+// COMMON VALUES
+
+var _Utils_Tuple0_UNUSED = 0;
+var _Utils_Tuple0 = { $: '#0' };
+
+function _Utils_Tuple2_UNUSED(a, b) { return { a: a, b: b }; }
+function _Utils_Tuple2(a, b) { return { $: '#2', a: a, b: b }; }
+
+function _Utils_Tuple3_UNUSED(a, b, c) { return { a: a, b: b, c: c }; }
+function _Utils_Tuple3(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
+
+function _Utils_chr_UNUSED(c) { return c; }
+function _Utils_chr(c) { return new String(c); }
+
+
+// RECORDS
+
+function _Utils_update(oldRecord, updatedFields)
+{
+	var newRecord = {};
+
+	for (var key in oldRecord)
+	{
+		newRecord[key] = oldRecord[key];
+	}
+
+	for (var key in updatedFields)
+	{
+		newRecord[key] = updatedFields[key];
+	}
+
+	return newRecord;
+}
+
+
+// APPEND
+
+var _Utils_append = F2(_Utils_ap);
+
+function _Utils_ap(xs, ys)
+{
+	// append Strings
+	if (typeof xs === 'string')
+	{
+		return xs + ys;
+	}
+
+	// append Lists
+	if (!xs.b)
+	{
+		return ys;
+	}
+	var root = _List_Cons(xs.a, ys);
+	xs = xs.b
+	for (var curr = root; xs.b; xs = xs.b) // WHILE_CONS
+	{
+		curr = curr.b = _List_Cons(xs.a, ys);
+	}
+	return root;
+}
+
+
+
 var _List_Nil_UNUSED = { $: 0 };
 var _List_Nil = { $: '[]' };
 
@@ -605,190 +789,6 @@ function _Debug_regionToString(region)
 		return 'on line ' + region.start.line;
 	}
 	return 'on lines ' + region.start.line + ' through ' + region.end.line;
-}
-
-
-
-// EQUALITY
-
-function _Utils_eq(x, y)
-{
-	for (
-		var pair, stack = [], isEqual = _Utils_eqHelp(x, y, 0, stack);
-		isEqual && (pair = stack.pop());
-		isEqual = _Utils_eqHelp(pair.a, pair.b, 0, stack)
-		)
-	{}
-
-	return isEqual;
-}
-
-function _Utils_eqHelp(x, y, depth, stack)
-{
-	if (x === y)
-	{
-		return true;
-	}
-
-	if (typeof x !== 'object' || x === null || y === null)
-	{
-		typeof x === 'function' && _Debug_crash(5);
-		return false;
-	}
-
-	if (depth > 100)
-	{
-		stack.push(_Utils_Tuple2(x,y));
-		return true;
-	}
-
-	/**/
-	if (x.$ === 'Set_elm_builtin')
-	{
-		x = $elm$core$Set$toList(x);
-		y = $elm$core$Set$toList(y);
-	}
-	if (x.$ === 'RBNode_elm_builtin' || x.$ === 'RBEmpty_elm_builtin')
-	{
-		x = $elm$core$Dict$toList(x);
-		y = $elm$core$Dict$toList(y);
-	}
-	//*/
-
-	/**_UNUSED/
-	if (x.$ < 0)
-	{
-		x = $elm$core$Dict$toList(x);
-		y = $elm$core$Dict$toList(y);
-	}
-	//*/
-
-	for (var key in x)
-	{
-		if (!_Utils_eqHelp(x[key], y[key], depth + 1, stack))
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
-var _Utils_equal = F2(_Utils_eq);
-var _Utils_notEqual = F2(function(a, b) { return !_Utils_eq(a,b); });
-
-
-
-// COMPARISONS
-
-// Code in Generate/JavaScript.hs, Basics.js, and List.js depends on
-// the particular integer values assigned to LT, EQ, and GT.
-
-function _Utils_cmp(x, y, ord)
-{
-	if (typeof x !== 'object')
-	{
-		return x === y ? /*EQ*/ 0 : x < y ? /*LT*/ -1 : /*GT*/ 1;
-	}
-
-	/**/
-	if (x instanceof String)
-	{
-		var a = x.valueOf();
-		var b = y.valueOf();
-		return a === b ? 0 : a < b ? -1 : 1;
-	}
-	//*/
-
-	/**_UNUSED/
-	if (typeof x.$ === 'undefined')
-	//*/
-	/**/
-	if (x.$[0] === '#')
-	//*/
-	{
-		return (ord = _Utils_cmp(x.a, y.a))
-			? ord
-			: (ord = _Utils_cmp(x.b, y.b))
-				? ord
-				: _Utils_cmp(x.c, y.c);
-	}
-
-	// traverse conses until end of a list or a mismatch
-	for (; x.b && y.b && !(ord = _Utils_cmp(x.a, y.a)); x = x.b, y = y.b) {} // WHILE_CONSES
-	return ord || (x.b ? /*GT*/ 1 : y.b ? /*LT*/ -1 : /*EQ*/ 0);
-}
-
-var _Utils_lt = F2(function(a, b) { return _Utils_cmp(a, b) < 0; });
-var _Utils_le = F2(function(a, b) { return _Utils_cmp(a, b) < 1; });
-var _Utils_gt = F2(function(a, b) { return _Utils_cmp(a, b) > 0; });
-var _Utils_ge = F2(function(a, b) { return _Utils_cmp(a, b) >= 0; });
-
-var _Utils_compare = F2(function(x, y)
-{
-	var n = _Utils_cmp(x, y);
-	return n < 0 ? $elm$core$Basics$LT : n ? $elm$core$Basics$GT : $elm$core$Basics$EQ;
-});
-
-
-// COMMON VALUES
-
-var _Utils_Tuple0_UNUSED = 0;
-var _Utils_Tuple0 = { $: '#0' };
-
-function _Utils_Tuple2_UNUSED(a, b) { return { a: a, b: b }; }
-function _Utils_Tuple2(a, b) { return { $: '#2', a: a, b: b }; }
-
-function _Utils_Tuple3_UNUSED(a, b, c) { return { a: a, b: b, c: c }; }
-function _Utils_Tuple3(a, b, c) { return { $: '#3', a: a, b: b, c: c }; }
-
-function _Utils_chr_UNUSED(c) { return c; }
-function _Utils_chr(c) { return new String(c); }
-
-
-// RECORDS
-
-function _Utils_update(oldRecord, updatedFields)
-{
-	var newRecord = {};
-
-	for (var key in oldRecord)
-	{
-		newRecord[key] = oldRecord[key];
-	}
-
-	for (var key in updatedFields)
-	{
-		newRecord[key] = updatedFields[key];
-	}
-
-	return newRecord;
-}
-
-
-// APPEND
-
-var _Utils_append = F2(_Utils_ap);
-
-function _Utils_ap(xs, ys)
-{
-	// append Strings
-	if (typeof xs === 'string')
-	{
-		return xs + ys;
-	}
-
-	// append Lists
-	if (!xs.b)
-	{
-		return ys;
-	}
-	var root = _List_Cons(xs.a, ys);
-	xs = xs.b
-	for (var curr = root; xs.b; xs = xs.b) // WHILE_CONS
-	{
-		curr = curr.b = _List_Cons(xs.a, ys);
-	}
-	return root;
 }
 
 
@@ -4355,33 +4355,11 @@ function _Browser_load(url)
 		}
 	}));
 }
+var $author$project$Calc$init = {input: 4, selectedInputRange: '4 to 20mA', selectedOutputRange: '0 to 5000 °C', userInput: '4', xMax: 5000, xMin: 0, yMax: 20, yMin: 4};
 var $elm$core$Basics$EQ = {$: 'EQ'};
+var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
 var $elm$core$List$cons = _List_cons;
-var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
-var $elm$core$Array$foldr = F3(
-	function (func, baseCase, _v0) {
-		var tree = _v0.c;
-		var tail = _v0.d;
-		var helper = F2(
-			function (node, acc) {
-				if (node.$ === 'SubTree') {
-					var subTree = node.a;
-					return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
-				} else {
-					var values = node.a;
-					return A3($elm$core$Elm$JsArray$foldr, func, acc, values);
-				}
-			});
-		return A3(
-			$elm$core$Elm$JsArray$foldr,
-			helper,
-			A3($elm$core$Elm$JsArray$foldr, func, baseCase, tail),
-			tree);
-	});
-var $elm$core$Array$toList = function (array) {
-	return A3($elm$core$Array$foldr, $elm$core$List$cons, _List_Nil, array);
-};
 var $elm$core$Dict$foldr = F3(
 	function (func, acc, t) {
 		foldr:
@@ -4434,15 +4412,29 @@ var $elm$core$Set$toList = function (_v0) {
 	var dict = _v0.a;
 	return $elm$core$Dict$keys(dict);
 };
-var $elm$core$Basics$GT = {$: 'GT'};
-var $author$project$Main$init = {
-	selectedInputRange: '...',
-	selectedOutputRange: _Utils_Tuple3('...', 800, 2500),
-	userInput: '4',
-	xMax: '2500',
-	xMin: '800',
-	yMax: '20',
-	yMin: '4'
+var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
+var $elm$core$Array$foldr = F3(
+	function (func, baseCase, _v0) {
+		var tree = _v0.c;
+		var tail = _v0.d;
+		var helper = F2(
+			function (node, acc) {
+				if (node.$ === 'SubTree') {
+					var subTree = node.a;
+					return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
+				} else {
+					var values = node.a;
+					return A3($elm$core$Elm$JsArray$foldr, func, acc, values);
+				}
+			});
+		return A3(
+			$elm$core$Elm$JsArray$foldr,
+			helper,
+			A3($elm$core$Elm$JsArray$foldr, func, baseCase, tail),
+			tree);
+	});
+var $elm$core$Array$toList = function (array) {
+	return A3($elm$core$Array$foldr, $elm$core$List$cons, _List_Nil, array);
 };
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
@@ -5174,66 +5166,114 @@ var $elm$browser$Browser$sandbox = function (impl) {
 			view: impl.view
 		});
 };
-var $author$project$Main$update = F2(
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $author$project$Calc$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 'YMaxChange':
-				var value = msg.a;
-				return _Utils_update(
-					model,
-					{yMax: value});
-			case 'YMinChange':
-				var value = msg.a;
-				return _Utils_update(
-					model,
-					{yMin: value});
-			case 'XMaxChange':
-				var value = msg.a;
-				return _Utils_update(
-					model,
-					{xMax: value});
-			case 'XMinChange':
-				var value = msg.a;
-				return _Utils_update(
-					model,
-					{xMin: value});
 			case 'UserInputChange':
 				var value = msg.a;
 				return _Utils_update(
 					model,
 					{userInput: value});
+			case 'InputRangeSelected':
+				var value = msg.a;
+				switch (value) {
+					case '0 to 20 mA':
+						return _Utils_update(
+							model,
+							{selectedInputRange: value, xMax: 20, xMin: 0});
+					case '4 to 20 mA':
+						return _Utils_update(
+							model,
+							{selectedInputRange: value, xMax: 20, xMin: 4});
+					case '-10 to 10 VDC':
+						return _Utils_update(
+							model,
+							{selectedInputRange: value, xMax: 10, xMin: -10});
+					case '0 to 10 VDC':
+						return _Utils_update(
+							model,
+							{selectedInputRange: value, xMax: 10, xMin: 0});
+					case '800 to 2500 °C':
+						return _Utils_update(
+							model,
+							{selectedInputRange: value, xMax: 2500, xMin: 0});
+					case '1000 to 2500 °C':
+						return _Utils_update(
+							model,
+							{selectedInputRange: value, xMax: 2500, xMin: 0});
+					case '0 to 5000 °C':
+						return _Utils_update(
+							model,
+							{selectedInputRange: value, xMax: 5000, xMin: 0});
+					case '1000 to 5000 °C':
+						return _Utils_update(
+							model,
+							{selectedInputRange: value, xMax: 5000, xMin: 1000});
+					default:
+						return _Utils_update(
+							model,
+							{selectedInputRange: value, xMax: 20, xMin: 4});
+				}
 			default:
 				var value = msg.a;
-				return _Utils_update(
-					model,
-					{selectedInputRange: value});
+				switch (value) {
+					case '0 to 20 mA':
+						return _Utils_update(
+							model,
+							{selectedOutputRange: value, yMax: 20, yMin: 0});
+					case '4 to 20 mA':
+						return _Utils_update(
+							model,
+							{selectedOutputRange: value, yMax: 20, yMin: 4});
+					case '-10 to 10 VDC':
+						return _Utils_update(
+							model,
+							{selectedOutputRange: value, yMax: 10, yMin: -10});
+					case '0 to 10 VDC':
+						return _Utils_update(
+							model,
+							{selectedOutputRange: value, yMax: 10, yMin: 0});
+					case '800 to 2500 °C':
+						return _Utils_update(
+							model,
+							{selectedOutputRange: value, yMax: 2500, yMin: 0});
+					case '1000 to 2500 °C':
+						return _Utils_update(
+							model,
+							{selectedOutputRange: value, yMax: 2500, yMin: 0});
+					case '0 to 5000 °C':
+						return _Utils_update(
+							model,
+							{selectedOutputRange: value, yMax: 5000, yMin: 0});
+					case '1000 to 5000 °C':
+						return _Utils_update(
+							model,
+							{selectedOutputRange: value, yMax: 5000, yMin: 1000});
+					default:
+						return _Utils_update(
+							model,
+							{selectedOutputRange: value, yMax: 5000, yMin: 0});
+				}
 		}
 	});
-var $author$project$Main$InputRangeSelected = function (a) {
+var $author$project$Calc$InputRangeSelected = function (a) {
 	return {$: 'InputRangeSelected', a: a};
 };
-var $author$project$Main$UserInputChange = function (a) {
+var $author$project$Calc$OutputRangeSelected = function (a) {
+	return {$: 'OutputRangeSelected', a: a};
+};
+var $author$project$Calc$UserInputChange = function (a) {
 	return {$: 'UserInputChange', a: a};
-};
-var $author$project$Main$XMaxChange = function (a) {
-	return {$: 'XMaxChange', a: a};
-};
-var $author$project$Main$XMinChange = function (a) {
-	return {$: 'XMinChange', a: a};
-};
-var $author$project$Main$YMaxChange = function (a) {
-	return {$: 'YMaxChange', a: a};
-};
-var $author$project$Main$YMinChange = function (a) {
-	return {$: 'YMinChange', a: a};
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$html$Html$hr = _VirtualDom_node('hr');
 var $elm$html$Html$input = _VirtualDom_node('input');
-var $author$project$Main$inputRangeItem = _List_fromArray(
-	['0 to 20 mA', '4 to 20 mA', '-10 to 10 VDC', '0 to 10 VDC']);
 var $elm$html$Html$label = _VirtualDom_node('label');
+var $elm$core$Debug$log = _Debug_log;
 var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -5278,12 +5318,13 @@ var $elm$html$Html$Events$on = F2(
 			event,
 			$elm$virtual_dom$VirtualDom$Normal(decoder));
 	});
-var $author$project$Main$onSelectedChange = function (msg) {
+var $author$project$Calc$onSelectedChange = function (msg) {
 	return A2(
 		$elm$html$Html$Events$on,
 		'change',
 		A2($elm$json$Json$Decode$map, msg, $elm$html$Html$Events$targetValue));
 };
+var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -5293,10 +5334,12 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $author$project$Calc$rangeItem = _List_fromArray(
+	['0 to 20 mA', '4 to 20 mA', '-10 to 10 VDC', '0 to 10 VDC', '800 to 2500 °C', '1000 to 2500 °C', '0 to 5000 °C', '1000 to 5000 °C']);
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Main$rangeOptions = function (item) {
+var $author$project$Calc$rangeOption = function (item) {
 	return A2(
 		$elm$html$Html$option,
 		_List_Nil,
@@ -5306,43 +5349,11 @@ var $author$project$Main$rangeOptions = function (item) {
 			]));
 };
 var $elm$core$String$toFloat = _String_toFloat;
-var $author$project$Main$scaleLinear = function (model) {
-	var ymin = function () {
-		var _v4 = $elm$core$String$toFloat(model.yMin);
-		if (_v4.$ === 'Nothing') {
-			return 0;
-		} else {
-			var val = _v4.a;
-			return val;
-		}
-	}();
-	var ymax = function () {
-		var _v3 = $elm$core$String$toFloat(model.yMax);
-		if (_v3.$ === 'Nothing') {
-			return 0;
-		} else {
-			var val = _v3.a;
-			return val;
-		}
-	}();
-	var xmin = function () {
-		var _v2 = $elm$core$String$toFloat(model.xMin);
-		if (_v2.$ === 'Nothing') {
-			return 0;
-		} else {
-			var val = _v2.a;
-			return val;
-		}
-	}();
-	var xmax = function () {
-		var _v1 = $elm$core$String$toFloat(model.xMax);
-		if (_v1.$ === 'Nothing') {
-			return 0;
-		} else {
-			var val = _v1.a;
-			return val;
-		}
-	}();
+var $author$project$Calc$scaleLinear = function (model) {
+	var ymin = model.yMin;
+	var ymax = model.yMax;
+	var xmin = model.xMin;
+	var xmax = model.xMax;
 	var inp = function () {
 		var _v0 = $elm$core$String$toFloat(model.userInput);
 		if (_v0.$ === 'Nothing') {
@@ -5356,84 +5367,60 @@ var $author$project$Main$scaleLinear = function (model) {
 };
 var $elm$html$Html$select = _VirtualDom_node('select');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$Main$view = function (model) {
+var $author$project$Calc$view = function (model) {
+	var _v0 = A2($elm$core$Debug$log, 'model: ', model);
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
 		_List_fromArray(
 			[
 				A2(
-				$elm$html$Html$label,
+				$elm$html$Html$p,
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('yMax')
+						A2(
+						$elm$html$Html$label,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Input Range')
+							])),
+						A2(
+						$elm$html$Html$select,
+						_List_fromArray(
+							[
+								$author$project$Calc$onSelectedChange($author$project$Calc$InputRangeSelected)
+							]),
+						A2($elm$core$List$map, $author$project$Calc$rangeOption, $author$project$Calc$rangeItem))
 					])),
 				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$placeholder('yMax'),
-						$elm$html$Html$Attributes$value(model.yMax),
-						$elm$html$Html$Events$onInput($author$project$Main$YMaxChange)
-					]),
-				_List_Nil),
-				A2(
-				$elm$html$Html$label,
+				$elm$html$Html$p,
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('yMin')
+						A2(
+						$elm$html$Html$label,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Output Range')
+							])),
+						A2(
+						$elm$html$Html$select,
+						_List_fromArray(
+							[
+								$author$project$Calc$onSelectedChange($author$project$Calc$OutputRangeSelected)
+							]),
+						A2($elm$core$List$map, $author$project$Calc$rangeOption, $author$project$Calc$rangeItem))
 					])),
-				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$placeholder('yMin'),
-						$elm$html$Html$Attributes$value(model.yMin),
-						$elm$html$Html$Events$onInput($author$project$Main$YMinChange)
-					]),
-				_List_Nil),
 				A2($elm$html$Html$hr, _List_Nil, _List_Nil),
 				A2(
 				$elm$html$Html$label,
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('xMax')
-					])),
-				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$placeholder('xMax'),
-						$elm$html$Html$Attributes$value(model.xMax),
-						$elm$html$Html$Events$onInput($author$project$Main$XMaxChange)
-					]),
-				_List_Nil),
-				A2(
-				$elm$html$Html$label,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('xMin')
-					])),
-				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$placeholder('xMin'),
-						$elm$html$Html$Attributes$value(model.xMin),
-						$elm$html$Html$Events$onInput($author$project$Main$XMinChange)
-					]),
-				_List_Nil),
-				A2($elm$html$Html$hr, _List_Nil, _List_Nil),
-				A2(
-				$elm$html$Html$label,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('userInput')
+						$elm$html$Html$text('Value to scale: ')
 					])),
 				A2(
 				$elm$html$Html$input,
@@ -5441,7 +5428,7 @@ var $author$project$Main$view = function (model) {
 					[
 						$elm$html$Html$Attributes$placeholder('input'),
 						$elm$html$Html$Attributes$value(model.userInput),
-						$elm$html$Html$Events$onInput($author$project$Main$UserInputChange)
+						$elm$html$Html$Events$onInput($author$project$Calc$UserInputChange)
 					]),
 				_List_Nil),
 				A2(
@@ -5450,34 +5437,12 @@ var $author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text(
-						$elm$core$String$fromFloat(
-							$author$project$Main$scaleLinear(model)))
-					])),
-				A2($elm$html$Html$hr, _List_Nil, _List_Nil),
-				A2(
-				$elm$html$Html$label,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Input Range')
-					])),
-				A2(
-				$elm$html$Html$select,
-				_List_fromArray(
-					[
-						$author$project$Main$onSelectedChange($author$project$Main$InputRangeSelected)
-					]),
-				A2($elm$core$List$map, $author$project$Main$rangeOptions, $author$project$Main$inputRangeItem)),
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text(model.selectedInputRange)
+						'Scaled value: ' + $elm$core$String$fromFloat(
+							$author$project$Calc$scaleLinear(model)))
 					]))
 			]));
 };
-var $author$project$Main$main = $elm$browser$Browser$sandbox(
-	{init: $author$project$Main$init, update: $author$project$Main$update, view: $author$project$Main$view});
-_Platform_export({'Main':{'init':$author$project$Main$main(
+var $author$project$Calc$main = $elm$browser$Browser$sandbox(
+	{init: $author$project$Calc$init, update: $author$project$Calc$update, view: $author$project$Calc$view});
+_Platform_export({'Calc':{'init':$author$project$Calc$main(
 	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
