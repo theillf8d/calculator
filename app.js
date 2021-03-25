@@ -4355,7 +4355,11 @@ function _Browser_load(url)
 		}
 	}));
 }
-var $author$project$Calc$init = {input: 4, selectedInputRange: '4 to 20mA', selectedOutputRange: '0 to 5000 °C', userInput: '4', xMax: 5000, xMin: 0, yMax: 20, yMin: 4};
+var $author$project$Calc2$init = {
+	selectedInputRange: {max: 20, min: 4, name: '4 to 20mA'},
+	selectedOutputRange: {max: 2500, min: 800, name: '800 to 2500 °C'},
+	userInput: '4'
+};
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -5166,10 +5170,56 @@ var $elm$browser$Browser$sandbox = function (impl) {
 			view: impl.view
 		});
 };
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
 var $elm$core$Basics$negate = function (n) {
 	return -n;
 };
-var $author$project$Calc$update = F2(
+var $author$project$Calc2$rangeItem = _List_fromArray(
+	[
+		{max: 20, min: 0, name: '0 to 20 mA'},
+		{max: 20, min: 4, name: '4 to 20 mA'},
+		{max: 10, min: -10, name: '-10 to 10 VDC'},
+		{max: 10, min: 0, name: '0 to 10 VDC'},
+		{max: 2500, min: 800, name: '800 to 2500 °C'},
+		{max: 2500, min: 1000, name: '1000 to 2500 °C'},
+		{max: 5000, min: 0, name: '0 to 5000 °C'},
+		{max: 5000, min: 1000, name: '1000 to 5000 °C'}
+	]);
+var $author$project$Calc2$getSelectedRangeItem = function (value) {
+	var _v0 = $elm$core$List$head(
+		A2(
+			$elm$core$List$filter,
+			function (val) {
+				return _Utils_eq(val.name, value);
+			},
+			$author$project$Calc2$rangeItem));
+	if (_v0.$ === 'Nothing') {
+		return {max: 20, min: 0, name: '0 to 20mA'};
+	} else {
+		var val = _v0.a;
+		return val;
+	}
+};
+var $author$project$Calc2$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'UserInputChange':
@@ -5179,93 +5229,27 @@ var $author$project$Calc$update = F2(
 					{userInput: value});
 			case 'InputRangeSelected':
 				var value = msg.a;
-				switch (value) {
-					case '0 to 20 mA':
-						return _Utils_update(
-							model,
-							{selectedInputRange: value, xMax: 20, xMin: 0});
-					case '4 to 20 mA':
-						return _Utils_update(
-							model,
-							{selectedInputRange: value, xMax: 20, xMin: 4});
-					case '-10 to 10 VDC':
-						return _Utils_update(
-							model,
-							{selectedInputRange: value, xMax: 10, xMin: -10});
-					case '0 to 10 VDC':
-						return _Utils_update(
-							model,
-							{selectedInputRange: value, xMax: 10, xMin: 0});
-					case '800 to 2500 °C':
-						return _Utils_update(
-							model,
-							{selectedInputRange: value, xMax: 2500, xMin: 0});
-					case '1000 to 2500 °C':
-						return _Utils_update(
-							model,
-							{selectedInputRange: value, xMax: 2500, xMin: 0});
-					case '0 to 5000 °C':
-						return _Utils_update(
-							model,
-							{selectedInputRange: value, xMax: 5000, xMin: 0});
-					case '1000 to 5000 °C':
-						return _Utils_update(
-							model,
-							{selectedInputRange: value, xMax: 5000, xMin: 1000});
-					default:
-						return _Utils_update(
-							model,
-							{selectedInputRange: value, xMax: 20, xMin: 4});
-				}
+				return _Utils_update(
+					model,
+					{
+						selectedInputRange: $author$project$Calc2$getSelectedRangeItem(value)
+					});
 			default:
 				var value = msg.a;
-				switch (value) {
-					case '0 to 20 mA':
-						return _Utils_update(
-							model,
-							{selectedOutputRange: value, yMax: 20, yMin: 0});
-					case '4 to 20 mA':
-						return _Utils_update(
-							model,
-							{selectedOutputRange: value, yMax: 20, yMin: 4});
-					case '-10 to 10 VDC':
-						return _Utils_update(
-							model,
-							{selectedOutputRange: value, yMax: 10, yMin: -10});
-					case '0 to 10 VDC':
-						return _Utils_update(
-							model,
-							{selectedOutputRange: value, yMax: 10, yMin: 0});
-					case '800 to 2500 °C':
-						return _Utils_update(
-							model,
-							{selectedOutputRange: value, yMax: 2500, yMin: 800});
-					case '1000 to 2500 °C':
-						return _Utils_update(
-							model,
-							{selectedOutputRange: value, yMax: 2500, yMin: 1000});
-					case '0 to 5000 °C':
-						return _Utils_update(
-							model,
-							{selectedOutputRange: value, yMax: 5000, yMin: 0});
-					case '1000 to 5000 °C':
-						return _Utils_update(
-							model,
-							{selectedOutputRange: value, yMax: 5000, yMin: 1000});
-					default:
-						return _Utils_update(
-							model,
-							{selectedOutputRange: value, yMax: 5000, yMin: 0});
-				}
+				return _Utils_update(
+					model,
+					{
+						selectedOutputRange: $author$project$Calc2$getSelectedRangeItem(value)
+					});
 		}
 	});
-var $author$project$Calc$InputRangeSelected = function (a) {
+var $author$project$Calc2$InputRangeSelected = function (a) {
 	return {$: 'InputRangeSelected', a: a};
 };
-var $author$project$Calc$OutputRangeSelected = function (a) {
+var $author$project$Calc2$OutputRangeSelected = function (a) {
 	return {$: 'OutputRangeSelected', a: a};
 };
-var $author$project$Calc$UserInputChange = function (a) {
+var $author$project$Calc2$UserInputChange = function (a) {
 	return {$: 'UserInputChange', a: a};
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
@@ -5273,7 +5257,6 @@ var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$html$Html$hr = _VirtualDom_node('hr');
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$label = _VirtualDom_node('label');
-var $elm$core$Debug$log = _Debug_log;
 var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -5318,7 +5301,7 @@ var $elm$html$Html$Events$on = F2(
 			event,
 			$elm$virtual_dom$VirtualDom$Normal(decoder));
 	});
-var $author$project$Calc$onSelectedChange = function (msg) {
+var $author$project$Calc2$onSelectedChange = function (msg) {
 	return A2(
 		$elm$html$Html$Events$on,
 		'change',
@@ -5334,26 +5317,24 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
-var $author$project$Calc$rangeItem = _List_fromArray(
-	['0 to 20 mA', '4 to 20 mA', '-10 to 10 VDC', '0 to 10 VDC', '800 to 2500 °C', '1000 to 2500 °C', '0 to 5000 °C', '1000 to 5000 °C']);
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Calc$rangeOption = function (item) {
+var $author$project$Calc2$rangeOption = function (item) {
 	return A2(
 		$elm$html$Html$option,
 		_List_Nil,
 		_List_fromArray(
 			[
-				$elm$html$Html$text(item)
+				$elm$html$Html$text(item.name)
 			]));
 };
 var $elm$core$String$toFloat = _String_toFloat;
-var $author$project$Calc$scaleLinear = function (model) {
-	var ymin = model.yMin;
-	var ymax = model.yMax;
-	var xmin = model.xMin;
-	var xmax = model.xMax;
+var $author$project$Calc2$scaleLinear = function (model) {
+	var ymin = model.selectedOutputRange.min;
+	var ymax = model.selectedOutputRange.max;
+	var xmin = model.selectedInputRange.min;
+	var xmax = model.selectedInputRange.max;
 	var inp = function () {
 		var _v0 = $elm$core$String$toFloat(model.userInput);
 		if (_v0.$ === 'Nothing') {
@@ -5367,8 +5348,7 @@ var $author$project$Calc$scaleLinear = function (model) {
 };
 var $elm$html$Html$select = _VirtualDom_node('select');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$Calc$view = function (model) {
-	var _v0 = A2($elm$core$Debug$log, 'model: ', model);
+var $author$project$Calc2$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_Nil,
@@ -5390,9 +5370,9 @@ var $author$project$Calc$view = function (model) {
 						$elm$html$Html$select,
 						_List_fromArray(
 							[
-								$author$project$Calc$onSelectedChange($author$project$Calc$InputRangeSelected)
+								$author$project$Calc2$onSelectedChange($author$project$Calc2$InputRangeSelected)
 							]),
-						A2($elm$core$List$map, $author$project$Calc$rangeOption, $author$project$Calc$rangeItem))
+						A2($elm$core$List$map, $author$project$Calc2$rangeOption, $author$project$Calc2$rangeItem))
 					])),
 				A2(
 				$elm$html$Html$p,
@@ -5410,9 +5390,9 @@ var $author$project$Calc$view = function (model) {
 						$elm$html$Html$select,
 						_List_fromArray(
 							[
-								$author$project$Calc$onSelectedChange($author$project$Calc$OutputRangeSelected)
+								$author$project$Calc2$onSelectedChange($author$project$Calc2$OutputRangeSelected)
 							]),
-						A2($elm$core$List$map, $author$project$Calc$rangeOption, $author$project$Calc$rangeItem))
+						A2($elm$core$List$map, $author$project$Calc2$rangeOption, $author$project$Calc2$rangeItem))
 					])),
 				A2($elm$html$Html$hr, _List_Nil, _List_Nil),
 				A2(
@@ -5428,7 +5408,7 @@ var $author$project$Calc$view = function (model) {
 					[
 						$elm$html$Html$Attributes$placeholder('input'),
 						$elm$html$Html$Attributes$value(model.userInput),
-						$elm$html$Html$Events$onInput($author$project$Calc$UserInputChange)
+						$elm$html$Html$Events$onInput($author$project$Calc2$UserInputChange)
 					]),
 				_List_Nil),
 				A2(
@@ -5438,11 +5418,18 @@ var $author$project$Calc$view = function (model) {
 					[
 						$elm$html$Html$text(
 						'Scaled value: ' + $elm$core$String$fromFloat(
-							$author$project$Calc$scaleLinear(model)))
+							$author$project$Calc2$scaleLinear(model)))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('(Calc2)')
 					]))
 			]));
 };
-var $author$project$Calc$main = $elm$browser$Browser$sandbox(
-	{init: $author$project$Calc$init, update: $author$project$Calc$update, view: $author$project$Calc$view});
-_Platform_export({'Calc':{'init':$author$project$Calc$main(
+var $author$project$Calc2$main = $elm$browser$Browser$sandbox(
+	{init: $author$project$Calc2$init, update: $author$project$Calc2$update, view: $author$project$Calc2$view});
+_Platform_export({'Calc2':{'init':$author$project$Calc2$main(
 	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
