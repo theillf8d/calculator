@@ -129,15 +129,15 @@ view : Model -> Html Msg
 view model =
     div []
         [ p []
-            [ label [] [ text "Input Range" ]
-            , select [ onSelectedChange InputRangeSelected ] (List.map rangeOption rangeItem)
-            ]
-        , p []
-            [ label [] [ text "Output Range" ]
+            [ label [] [ text "I want to know: " ]
             , select [ onSelectedChange OutputRangeSelected ] (List.map rangeOption rangeItem)
             ]
+        , p []
+            [ label [] [ text "When I know: " ]
+            , select [ onSelectedChange InputRangeSelected ] (List.map rangeOption rangeItem)
+            ]
         , hr [] []
-        , label [] [ text "Value to scale: " ]
+        , label [] [ text "Input: " ]
         , input [ placeholder "input", value model.userInput, onInput UserInputChange ] []
         , div [] [ text ("Scaled value: " ++ String.fromFloat (scaleLinear model)) ]
         , div [] [ text "(Calc2)" ]
@@ -154,4 +154,3 @@ rangeOption item =
 
 -- todo: work out how to make controls initialize to default selections
 -- todo: styling
--- todo: labels are not clear on intent

@@ -5364,13 +5364,13 @@ var $author$project$Calc2$view = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Input Range')
+								$elm$html$Html$text('I want to know: ')
 							])),
 						A2(
 						$elm$html$Html$select,
 						_List_fromArray(
 							[
-								$author$project$Calc2$onSelectedChange($author$project$Calc2$InputRangeSelected)
+								$author$project$Calc2$onSelectedChange($author$project$Calc2$OutputRangeSelected)
 							]),
 						A2($elm$core$List$map, $author$project$Calc2$rangeOption, $author$project$Calc2$rangeItem))
 					])),
@@ -5384,13 +5384,13 @@ var $author$project$Calc2$view = function (model) {
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Output Range')
+								$elm$html$Html$text('When I know: ')
 							])),
 						A2(
 						$elm$html$Html$select,
 						_List_fromArray(
 							[
-								$author$project$Calc2$onSelectedChange($author$project$Calc2$OutputRangeSelected)
+								$author$project$Calc2$onSelectedChange($author$project$Calc2$InputRangeSelected)
 							]),
 						A2($elm$core$List$map, $author$project$Calc2$rangeOption, $author$project$Calc2$rangeItem))
 					])),
@@ -5400,7 +5400,7 @@ var $author$project$Calc2$view = function (model) {
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Value to scale: ')
+						$elm$html$Html$text('Input: ')
 					])),
 				A2(
 				$elm$html$Html$input,
