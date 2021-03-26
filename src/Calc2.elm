@@ -128,8 +128,7 @@ scaleLinear model =
 view : Model -> Html Msg
 view model =
     div
-        [ style "font-family" "Arial, Helvitica, sans-serif"
-        , style "text-align" "center"
+        [ class "sans-serif measure"
         ]
         [ h2 [] [ text "Linear Scaler" ]
         , p []
@@ -141,19 +140,14 @@ view model =
             , select [ onSelectedChange InputRangeSelected ] (List.map rangeOption rangeItem)
             ]
         , hr
-            [ style "width" "40%"
-            , style "height" "4"
-            , style "color" "red"
-            ]
+            []
             []
         , label [] [ text "Input: " ]
         , input [ placeholder "input", value model.userInput, onInput UserInputChange ] []
         , span
-            [ style "background-color" "yellow"
-            , style "padding" "5px"
-            ]
+            [ class "bg-yellow ph2 ma1" ]
             [ text ("Scaled value: " ++ String.fromFloat (scaleLinear model)) ]
-        , p [ style "font-size" ".5em" ] [ text "(Calc2.elm)" ]
+        , p [ class "f6" ] [ text "(Calc2.elm)" ]
         ]
 
 

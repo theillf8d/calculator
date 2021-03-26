@@ -5252,6 +5252,15 @@ var $author$project$Calc2$OutputRangeSelected = function (a) {
 var $author$project$Calc2$UserInputChange = function (a) {
 	return {$: 'UserInputChange', a: a};
 };
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $elm$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			_VirtualDom_property,
+			key,
+			$elm$json$Json$Encode$string(string));
+	});
+var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$core$String$fromFloat = _String_fromNumber;
 var $elm$html$Html$h2 = _VirtualDom_node('h2');
@@ -5309,14 +5318,6 @@ var $author$project$Calc2$onSelectedChange = function (msg) {
 		A2($elm$json$Json$Decode$map, msg, $elm$html$Html$Events$targetValue));
 };
 var $elm$html$Html$p = _VirtualDom_node('p');
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $elm$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			_VirtualDom_property,
-			key,
-			$elm$json$Json$Encode$string(string));
-	});
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
@@ -5349,16 +5350,13 @@ var $author$project$Calc2$scaleLinear = function (model) {
 };
 var $elm$html$Html$select = _VirtualDom_node('select');
 var $elm$html$Html$span = _VirtualDom_node('span');
-var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
-var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Calc2$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
-				A2($elm$html$Html$Attributes$style, 'font-family', 'Arial, Helvitica, sans-serif'),
-				A2($elm$html$Html$Attributes$style, 'text-align', 'center')
+				$elm$html$Html$Attributes$class('sans-serif measure')
 			]),
 		_List_fromArray(
 			[
@@ -5409,15 +5407,7 @@ var $author$project$Calc2$view = function (model) {
 							]),
 						A2($elm$core$List$map, $author$project$Calc2$rangeOption, $author$project$Calc2$rangeItem))
 					])),
-				A2(
-				$elm$html$Html$hr,
-				_List_fromArray(
-					[
-						A2($elm$html$Html$Attributes$style, 'width', '40%'),
-						A2($elm$html$Html$Attributes$style, 'height', '4'),
-						A2($elm$html$Html$Attributes$style, 'color', 'red')
-					]),
-				_List_Nil),
+				A2($elm$html$Html$hr, _List_Nil, _List_Nil),
 				A2(
 				$elm$html$Html$label,
 				_List_Nil,
@@ -5438,8 +5428,7 @@ var $author$project$Calc2$view = function (model) {
 				$elm$html$Html$span,
 				_List_fromArray(
 					[
-						A2($elm$html$Html$Attributes$style, 'background-color', 'yellow'),
-						A2($elm$html$Html$Attributes$style, 'padding', '5px')
+						$elm$html$Html$Attributes$class('bg-yellow ph2 ma1')
 					]),
 				_List_fromArray(
 					[
@@ -5451,11 +5440,11 @@ var $author$project$Calc2$view = function (model) {
 				$elm$html$Html$p,
 				_List_fromArray(
 					[
-						A2($elm$html$Html$Attributes$style, 'font-size', '.5em')
+						$elm$html$Html$Attributes$class('f6')
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('(Calc2)')
+						$elm$html$Html$text('(Calc2.elm)')
 					]))
 			]));
 };
