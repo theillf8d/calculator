@@ -1,7 +1,7 @@
 module Calc2 exposing (..)
 
 import Browser
-import Html exposing (Attribute, Html, a, div, hr, input, label, option, p, select, text)
+import Html exposing (Attribute, Html, a, div, h2, hr, input, label, option, p, select, span, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onInput)
 import Json.Decode as D
@@ -127,8 +127,12 @@ scaleLinear model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ p []
+    div
+        [ style "font-family" "Arial, Helvitica, sans-serif"
+        , style "text-align" "center"
+        ]
+        [ h2 [] [ text "Linear Scaler" ]
+        , p []
             [ label [] [ text "I want to know: " ]
             , select [ onSelectedChange OutputRangeSelected ] (List.map rangeOption rangeItem)
             ]
@@ -136,11 +140,20 @@ view model =
             [ label [] [ text "When I know: " ]
             , select [ onSelectedChange InputRangeSelected ] (List.map rangeOption rangeItem)
             ]
-        , hr [] []
+        , hr
+            [ style "width" "40%"
+            , style "height" "4"
+            , style "color" "red"
+            ]
+            []
         , label [] [ text "Input: " ]
         , input [ placeholder "input", value model.userInput, onInput UserInputChange ] []
-        , div [] [ text ("Scaled value: " ++ String.fromFloat (scaleLinear model)) ]
-        , div [] [ text "(Calc2)" ]
+        , span
+            [ style "background-color" "yellow"
+            , style "padding" "5px"
+            ]
+            [ text ("Scaled value: " ++ String.fromFloat (scaleLinear model)) ]
+        , p [ style "font-size" ".5em" ] [ text "(Calc2.elm)" ]
         ]
 
 

@@ -5254,6 +5254,7 @@ var $author$project$Calc2$UserInputChange = function (a) {
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$core$String$fromFloat = _String_fromNumber;
+var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$label = _VirtualDom_node('label');
@@ -5347,13 +5348,27 @@ var $author$project$Calc2$scaleLinear = function (model) {
 	return (((ymax - ymin) / (xmax - xmin)) * (inp - xmin)) + ymin;
 };
 var $elm$html$Html$select = _VirtualDom_node('select');
+var $elm$html$Html$span = _VirtualDom_node('span');
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Calc2$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
 		_List_fromArray(
 			[
+				A2($elm$html$Html$Attributes$style, 'font-family', 'Arial, Helvitica, sans-serif'),
+				A2($elm$html$Html$Attributes$style, 'text-align', 'center')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$h2,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Linear Scaler')
+					])),
 				A2(
 				$elm$html$Html$p,
 				_List_Nil,
@@ -5394,7 +5409,15 @@ var $author$project$Calc2$view = function (model) {
 							]),
 						A2($elm$core$List$map, $author$project$Calc2$rangeOption, $author$project$Calc2$rangeItem))
 					])),
-				A2($elm$html$Html$hr, _List_Nil, _List_Nil),
+				A2(
+				$elm$html$Html$hr,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'width', '40%'),
+						A2($elm$html$Html$Attributes$style, 'height', '4'),
+						A2($elm$html$Html$Attributes$style, 'color', 'red')
+					]),
+				_List_Nil),
 				A2(
 				$elm$html$Html$label,
 				_List_Nil,
@@ -5412,8 +5435,12 @@ var $author$project$Calc2$view = function (model) {
 					]),
 				_List_Nil),
 				A2(
-				$elm$html$Html$div,
-				_List_Nil,
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'background-color', 'yellow'),
+						A2($elm$html$Html$Attributes$style, 'padding', '5px')
+					]),
 				_List_fromArray(
 					[
 						$elm$html$Html$text(
@@ -5421,8 +5448,11 @@ var $author$project$Calc2$view = function (model) {
 							$author$project$Calc2$scaleLinear(model)))
 					])),
 				A2(
-				$elm$html$Html$div,
-				_List_Nil,
+				$elm$html$Html$p,
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'font-size', '.5em')
+					]),
 				_List_fromArray(
 					[
 						$elm$html$Html$text('(Calc2)')
