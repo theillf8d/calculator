@@ -4940,7 +4940,7 @@ function _Browser_load(url)
 }
 var $elm$core$Basics$True = {$: 'True'};
 var $author$project$Calc2$init = {
-	calcualtedValue: '4',
+	calculatedValue: '4',
 	firstPass: true,
 	selectedInputRange: {max: 20, min: 4, name: '4 to 20mA'},
 	selectedOutputRange: {max: 2500, min: 800, name: '800 to 2500 °C'},
@@ -10651,7 +10651,7 @@ var $author$project$Calc2$update = F2(
 				}();
 				return _Utils_update(
 					model,
-					{calcualtedValue: newVal, firstPass: false, userInput: value});
+					{calculatedValue: newVal, firstPass: false, userInput: value});
 			case 'InputRangeSelected':
 				var value = msg.a;
 				return _Utils_update(
@@ -10690,8 +10690,8 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 	});
 var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
 var $author$project$Calc2$rangeOption = F2(
-	function (item, defaultItem) {
-		return _Utils_eq(item.name, defaultItem) ? A2(
+	function (item, defaultOption) {
+		return _Utils_eq(item.name, defaultOption) ? A2(
 			$elm$html$Html$option,
 			_List_fromArray(
 				[
@@ -10709,7 +10709,8 @@ var $author$project$Calc2$rangeOption = F2(
 				]));
 	});
 var $author$project$Calc2$inputRangeOption = function (item) {
-	return A2($author$project$Calc2$rangeOption, item, '4 to 20 mA');
+	var defaultOption = '4 to 20 mA';
+	return A2($author$project$Calc2$rangeOption, item, defaultOption);
 };
 var $elm$html$Html$label = _VirtualDom_node('label');
 var $author$project$Calc2$onSelectedChange = function (msg) {
@@ -10719,7 +10720,8 @@ var $author$project$Calc2$onSelectedChange = function (msg) {
 		A2($elm$json$Json$Decode$map, msg, $elm$html$Html$Events$targetValue));
 };
 var $author$project$Calc2$outputRangeOption = function (item) {
-	return A2($author$project$Calc2$rangeOption, item, '800 to 2500 °C');
+	var defaultOption = '800 to 2500 °C';
+	return A2($author$project$Calc2$rangeOption, item, defaultOption);
 };
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
 var $elm$html$Html$select = _VirtualDom_node('select');
@@ -10816,7 +10818,7 @@ var $author$project$Calc2$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Scaled value: ' + model.calcualtedValue)
+						$elm$html$Html$text('Scaled value: ' + model.calculatedValue)
 					])),
 				A2(
 				$elm$html$Html$p,
