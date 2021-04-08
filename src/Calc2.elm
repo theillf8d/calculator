@@ -1,10 +1,10 @@
 module Calc2 exposing (..)
 
 import Browser
-import Html exposing (Attribute, Html, a, div, h2, hr, input, label, option, p, select, span, text)
+import Html exposing (Attribute, Html, div, h2, hr, input, label, option, p, select, span, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onInput)
-import Json.Decode as D
+import Json.Decode as Decode
 
 
 
@@ -24,7 +24,7 @@ type alias Model =
     { userInput : String
     , selectedInputRange : RangeItem
     , selectedOutputRange : RangeItem
-    , calcualtedValue : String
+    , calculatedValue : String
     , firstPass : Bool
     }
 
@@ -54,7 +54,7 @@ init =
     { userInput = "4"
     , selectedInputRange = { name = "4 to 20mA", min = 4, max = 20 }
     , selectedOutputRange = { name = "800 to 2500 °C", min = 800, max = 2500 }
-    , calcualtedValue = "4"
+    , calculatedValue = "4"
     , firstPass = True
     }
 
@@ -95,7 +95,7 @@ update msg model =
                             else
                                 "Out of range..."
             in
-            { model | userInput = value, calcualtedValue = newVal, firstPass = False }
+            { model | userInput = value, calculatedValue = newVal, firstPass = False }
 
         InputRangeSelected value ->
             { model | selectedInputRange = getSelectedRangeItem value }
@@ -117,7 +117,7 @@ getSelectedRangeItem value =
 
 onSelectedChange : (String -> msg) -> Attribute msg
 onSelectedChange msg =
-    on "change" (D.map msg Html.Events.targetValue)
+    on "change" (Decode.map msg Html.Events.targetValue)
 
 
 scaleLinear : Model -> Float
@@ -181,14 +181,14 @@ view model =
             []
         , span
             [ class "bg-yellow black ph2 ma1" ]
-            [ text ("Scaled value: " ++ model.calcualtedValue) ]
+            [ text ("Scaled value: " ++ model.calculatedValue) ]
         , p [ class "f6" ] [ text "(Calc2.elm)" ]
         ]
 
 
 rangeOption : RangeItem -> String -> Html a
-rangeOption item defaultItem =
-    if item.name == defaultItem then
+rangeOption item defaultOption =
+    if item.name == defaultOption then
         option
             [ selected True ]
             [ text item.name ]
@@ -201,9 +201,17 @@ rangeOption item defaultItem =
 
 inputRangeOption : RangeItem -> Html a
 inputRangeOption item =
-    rangeOption item "4 to 20 mA"
+    let
+        defaultOption =
+            "4 to 20 mA"
+    in
+    rangeOption item defaultOption
 
 
 outputRangeOption : RangeItem -> Html a
 outputRangeOption item =
-    rangeOption item "800 to 2500 °C"
+    let
+        defaultOption =
+            "800 to 2500 °C"
+    in
+    rangeOption item defaultOption
