@@ -10679,7 +10679,6 @@ var $author$project$Calc2$UserInputChange = function (a) {
 };
 var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
-var $elm$core$Debug$log = _Debug_log;
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
@@ -10692,7 +10691,6 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
 var $author$project$Calc2$rangeOption = F2(
 	function (item, defaultItem) {
-		var _v0 = A2($elm$core$Debug$log, 'item: ', item);
 		return _Utils_eq(item.name, defaultItem) ? A2(
 			$elm$html$Html$option,
 			_List_fromArray(

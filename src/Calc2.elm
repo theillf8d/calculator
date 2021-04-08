@@ -188,10 +188,6 @@ view model =
 
 rangeOption : RangeItem -> String -> Html a
 rangeOption item defaultItem =
-    let
-        _ =
-            Debug.log "item: " item
-    in
     if item.name == defaultItem then
         option
             [ selected True ]
