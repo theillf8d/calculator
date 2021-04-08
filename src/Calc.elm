@@ -1,7 +1,7 @@
 module Calc exposing (..)
 
 import Browser
-import Html exposing (Attribute, Html, a, div, hr, input, label, option, p, select, text)
+import Html exposing (Attribute, Html, div, hr, input, label, option, p, select, text)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onInput)
 import Json.Decode as Decode

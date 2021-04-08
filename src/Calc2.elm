@@ -24,6 +24,8 @@ type alias Model =
     { userInput : String
     , selectedInputRange : RangeItem
     , selectedOutputRange : RangeItem
+    , calcualtedValue : String
+    , firstPass : Bool
     }
 
 
@@ -52,6 +54,8 @@ init =
     { userInput = "4"
     , selectedInputRange = { name = "4 to 20mA", min = 4, max = 20 }
     , selectedOutputRange = { name = "800 to 2500 °C", min = 800, max = 2500 }
+    , calcualtedValue = "4"
+    , firstPass = True
     }
 
 
@@ -69,7 +73,29 @@ update : Msg -> Model -> Model
 update msg model =
     case msg of
         UserInputChange value ->
-            { model | userInput = value }
+            let
+                newVal =
+                    case String.toFloat value of
+                        Nothing ->
+                            "Error"
+
+                        Just val ->
+                            if
+                                val
+                                    <= model.selectedInputRange.max
+                                    && val
+                                    >= model.selectedInputRange.min
+                            then
+                                let
+                                    mdl =
+                                        { model | userInput = String.fromFloat val }
+                                in
+                                String.fromFloat (scaleLinear mdl)
+
+                            else
+                                "Out of range..."
+            in
+            { model | userInput = value, calcualtedValue = newVal, firstPass = False }
 
         InputRangeSelected value ->
             { model | selectedInputRange = getSelectedRangeItem value }
@@ -128,36 +154,60 @@ scaleLinear model =
 view : Model -> Html Msg
 view model =
     div
-        [ class "sans-serif measure"
+        [ class "sans-serif measure bg-mid-gray yellow ma1"
         ]
-        [ h2 [] [ text "Linear Scaler" ]
-        , p []
+        [ h2 [ class "ml2" ] [ text "Linear Scaler" ]
+        , p [ class "ml2" ]
             [ label [] [ text "I want to know: " ]
-            , select [ onSelectedChange OutputRangeSelected ] (List.map rangeOption rangeItem)
+            , select
+                [ onSelectedChange OutputRangeSelected ]
+                (List.map outputRangeOption rangeItem)
             ]
-        , p []
+        , p [ class "ml2" ]
             [ label [] [ text "When I know: " ]
-            , select [ onSelectedChange InputRangeSelected ] (List.map rangeOption rangeItem)
+            , select
+                [ onSelectedChange InputRangeSelected ]
+                (List.map inputRangeOption rangeItem)
             ]
         , hr
             []
             []
-        , label [] [ text "Input: " ]
-        , input [ placeholder "input", value model.userInput, onInput UserInputChange ] []
+        , label [ class "ml2" ] [ text "Input: " ]
+        , input
+            [ placeholder "input"
+            , value model.userInput
+            , onInput UserInputChange
+            ]
+            []
         , span
-            [ class "bg-yellow ph2 ma1" ]
-            [ text ("Scaled value: " ++ String.fromFloat (scaleLinear model)) ]
+            [ class "bg-yellow black ph2 ma1" ]
+            [ text ("Scaled value: " ++ model.calcualtedValue) ]
         , p [ class "f6" ] [ text "(Calc2.elm)" ]
         ]
 
 
-rangeOption : RangeItem -> Html a
-rangeOption item =
-    option
-        []
-        [ text item.name ]
+rangeOption : RangeItem -> String -> Html a
+rangeOption item defaultItem =
+    let
+        _ =
+            Debug.log "item: " item
+    in
+    if item.name == defaultItem then
+        option
+            [ selected True ]
+            [ text item.name ]
+
+    else
+        option
+            []
+            [ text item.name ]
 
 
+inputRangeOption : RangeItem -> Html a
+inputRangeOption item =
+    rangeOption item "4 to 20 mA"
 
--- todo: work out how to make controls initialize to default selections
--- todo: styling
+
+outputRangeOption : RangeItem -> Html a
+outputRangeOption item =
+    rangeOption item "800 to 2500 °C"
