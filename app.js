@@ -10679,6 +10679,14 @@ var $author$project$Calc2$UserInputChange = function (a) {
 };
 var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
+var $elm$html$Html$label = _VirtualDom_node('label');
+var $author$project$Calc2$onSelectedChange = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'change',
+		A2($elm$json$Json$Decode$map, msg, $elm$html$Html$Events$targetValue));
+};
+var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
@@ -10690,7 +10698,7 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 	});
 var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
 var $author$project$Calc2$rangeOption = F2(
-	function (item, defaultOption) {
+	function (defaultOption, item) {
 		return _Utils_eq(item.name, defaultOption) ? A2(
 			$elm$html$Html$option,
 			_List_fromArray(
@@ -10708,22 +10716,6 @@ var $author$project$Calc2$rangeOption = F2(
 					$elm$html$Html$text(item.name)
 				]));
 	});
-var $author$project$Calc2$inputRangeOption = function (item) {
-	var defaultOption = '4 to 20 mA';
-	return A2($author$project$Calc2$rangeOption, item, defaultOption);
-};
-var $elm$html$Html$label = _VirtualDom_node('label');
-var $author$project$Calc2$onSelectedChange = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'change',
-		A2($elm$json$Json$Decode$map, msg, $elm$html$Html$Events$targetValue));
-};
-var $author$project$Calc2$outputRangeOption = function (item) {
-	var defaultOption = '800 to 2500 °C';
-	return A2($author$project$Calc2$rangeOption, item, defaultOption);
-};
-var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
 var $elm$html$Html$select = _VirtualDom_node('select');
 var $author$project$Calc2$view = function (model) {
 	return A2(
@@ -10765,7 +10757,13 @@ var $author$project$Calc2$view = function (model) {
 							[
 								$author$project$Calc2$onSelectedChange($author$project$Calc2$OutputRangeSelected)
 							]),
-						A2($elm$core$List$map, $author$project$Calc2$outputRangeOption, $author$project$Calc2$rangeItem))
+						function () {
+							var defaultOption = '800 to 2500 °C';
+							return A2(
+								$elm$core$List$map,
+								$author$project$Calc2$rangeOption(defaultOption),
+								$author$project$Calc2$rangeItem);
+						}())
 					])),
 				A2(
 				$elm$html$Html$p,
@@ -10788,7 +10786,13 @@ var $author$project$Calc2$view = function (model) {
 							[
 								$author$project$Calc2$onSelectedChange($author$project$Calc2$InputRangeSelected)
 							]),
-						A2($elm$core$List$map, $author$project$Calc2$inputRangeOption, $author$project$Calc2$rangeItem))
+						function () {
+							var defaultOption = '4 to 20 mA';
+							return A2(
+								$elm$core$List$map,
+								$author$project$Calc2$rangeOption(defaultOption),
+								$author$project$Calc2$rangeItem);
+						}())
 					])),
 				A2($elm$html$Html$hr, _List_Nil, _List_Nil),
 				A2(

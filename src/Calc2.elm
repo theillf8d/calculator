@@ -151,6 +151,19 @@ scaleLinear model =
 -- VIEW
 
 
+rangeOption : String -> RangeItem -> Html a
+rangeOption defaultOption item =
+    if item.name == defaultOption then
+        option
+            [ selected True ]
+            [ text item.name ]
+
+    else
+        option
+            []
+            [ text item.name ]
+
+
 view : Model -> Html Msg
 view model =
     div
@@ -161,13 +174,23 @@ view model =
             [ label [] [ text "I want to know: " ]
             , select
                 [ onSelectedChange OutputRangeSelected ]
-                (List.map outputRangeOption rangeItem)
+                (let
+                    defaultOption =
+                        "800 to 2500 °C"
+                 in
+                 List.map (rangeOption defaultOption) rangeItem
+                )
             ]
         , p [ class "ml2" ]
             [ label [] [ text "When I know: " ]
             , select
                 [ onSelectedChange InputRangeSelected ]
-                (List.map inputRangeOption rangeItem)
+                (let
+                    defaultOption =
+                        "4 to 20 mA"
+                 in
+                 List.map (rangeOption defaultOption) rangeItem
+                )
             ]
         , hr
             []
@@ -186,32 +209,5 @@ view model =
         ]
 
 
-rangeOption : RangeItem -> String -> Html a
-rangeOption item defaultOption =
-    if item.name == defaultOption then
-        option
-            [ selected True ]
-            [ text item.name ]
 
-    else
-        option
-            []
-            [ text item.name ]
-
-
-inputRangeOption : RangeItem -> Html a
-inputRangeOption item =
-    let
-        defaultOption =
-            "4 to 20 mA"
-    in
-    rangeOption item defaultOption
-
-
-outputRangeOption : RangeItem -> Html a
-outputRangeOption item =
-    let
-        defaultOption =
-            "800 to 2500 °C"
-    in
-    rangeOption item defaultOption
+-- todo: page should update calculated value on input/output range select change
