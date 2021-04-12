@@ -25,7 +25,6 @@ type alias Model =
     , selectedInputRange : RangeItem
     , selectedOutputRange : RangeItem
     , calculatedValue : String
-    , firstPass : Bool
     }
 
 
@@ -55,7 +54,6 @@ init =
     , selectedInputRange = { name = "4 to 20mA", min = 4, max = 20 }
     , selectedOutputRange = { name = "800 to 2500 °C", min = 800, max = 2500 }
     , calculatedValue = "4"
-    , firstPass = True
     }
 
 
@@ -95,7 +93,7 @@ update msg model =
                             else
                                 "Out of range..."
             in
-            { model | userInput = value, calculatedValue = newVal, firstPass = False }
+            { model | userInput = value, calculatedValue = newVal }
 
         InputRangeSelected value ->
             { model | selectedInputRange = getSelectedRangeItem value }

@@ -4938,10 +4938,8 @@ function _Browser_load(url)
 		}
 	}));
 }
-var $elm$core$Basics$True = {$: 'True'};
 var $author$project$Calc2$init = {
 	calculatedValue: '4',
-	firstPass: true,
 	selectedInputRange: {max: 20, min: 4, name: '4 to 20mA'},
 	selectedOutputRange: {max: 2500, min: 800, name: '800 to 2500 °C'},
 	userInput: '4'
@@ -5413,6 +5411,7 @@ var $elm$core$Array$initialize = F2(
 			return A5($elm$core$Array$initializeHelp, fn, initialFromIndex, len, _List_Nil, tail);
 		}
 	});
+var $elm$core$Basics$True = {$: 'True'};
 var $elm$core$Result$isOk = function (result) {
 	if (result.$ === 'Ok') {
 		return true;
@@ -10651,7 +10650,7 @@ var $author$project$Calc2$update = F2(
 				}();
 				return _Utils_update(
 					model,
-					{calculatedValue: newVal, firstPass: false, userInput: value});
+					{calculatedValue: newVal, userInput: value});
 			case 'InputRangeSelected':
 				var value = msg.a;
 				return _Utils_update(
