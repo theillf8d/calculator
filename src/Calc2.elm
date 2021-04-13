@@ -13,7 +13,12 @@ import Json.Decode as Decode
 
 main : Program () Model Msg
 main =
-    Browser.sandbox { init = init, update = update, view = view }
+    Browser.element
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        }
 
 
 
@@ -37,24 +42,29 @@ type alias RangeItem =
 
 rangeItem : List RangeItem
 rangeItem =
-    [ { name = "0 to 20 mA", min = 0, max = 20 }
-    , { name = "4 to 20 mA", min = 4, max = 20 }
-    , { name = "-10 to 10 VDC", min = -10, max = 10 }
-    , { name = "0 to 10 VDC", min = 0, max = 10 }
-    , { name = "800 to 2500 °C", min = 800, max = 2500 }
-    , { name = "1000 to 2500 °C", min = 1000, max = 2500 }
-    , { name = "0 to 5000 °C", min = 0, max = 5000 }
-    , { name = "1000 to 5000 °C", min = 1000, max = 5000 }
+    [ RangeItem "0 to 20 mA" 0 20
+    , RangeItem "4 to 20 mA" 4 20
+    , RangeItem "-10 to 10 VDC" -10 10
+    , RangeItem "0 to 10 VDC" 0 10
+    , RangeItem "800 to 2500 °C" 800 2500
+    , RangeItem "1000 to 2500 °C" 1000 2500
+    , RangeItem "0 to 5000 °C" 0 5000
+    , RangeItem "1000 to 5000 °C" 1000 5000
     ]
 
 
-init : Model
-init =
+initialModel : Model
+initialModel =
     { userInput = "4"
     , selectedInputRange = { name = "4 to 20mA", min = 4, max = 20 }
     , selectedOutputRange = { name = "800 to 2500 °C", min = 800, max = 2500 }
     , calculatedValue = "4"
     }
+
+
+init : () -> ( Model, Cmd Msg )
+init _ =
+    updateScaledValue initialModel
 
 
 
@@ -67,39 +77,17 @@ type Msg
     | OutputRangeSelected String
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UserInputChange value ->
-            let
-                newVal =
-                    case String.toFloat value of
-                        Nothing ->
-                            "Error"
-
-                        Just val ->
-                            if
-                                val
-                                    <= model.selectedInputRange.max
-                                    && val
-                                    >= model.selectedInputRange.min
-                            then
-                                let
-                                    mdl =
-                                        { model | userInput = String.fromFloat val }
-                                in
-                                String.fromFloat (scaleLinear mdl)
-
-                            else
-                                "Out of range..."
-            in
-            { model | userInput = value, calculatedValue = newVal }
+            updateScaledValue { model | userInput = value }
 
         InputRangeSelected value ->
-            { model | selectedInputRange = getSelectedRangeItem value }
+            updateScaledValue { model | selectedInputRange = getSelectedRangeItem value }
 
         OutputRangeSelected value ->
-            { model | selectedOutputRange = getSelectedRangeItem value }
+            updateScaledValue { model | selectedOutputRange = getSelectedRangeItem value }
 
 
 getSelectedRangeItem : String -> RangeItem
@@ -107,7 +95,7 @@ getSelectedRangeItem value =
     case List.filter (\val -> val.name == value) rangeItem |> List.head of
         Nothing ->
             -- need to look at something different here
-            { name = "0 to 20mA", min = 0, max = 20 }
+            RangeItem "4 to 20 mA" 4 20
 
         Just val ->
             val
@@ -116,6 +104,29 @@ getSelectedRangeItem value =
 onSelectedChange : (String -> msg) -> Attribute msg
 onSelectedChange msg =
     on "change" (Decode.map msg Html.Events.targetValue)
+
+
+updateScaledValue : Model -> ( Model, Cmd Msg )
+updateScaledValue model =
+    case String.toFloat model.userInput of
+        Nothing ->
+            ( { model | calculatedValue = "Error" }, Cmd.none )
+
+        Just val ->
+            if
+                val
+                    <= model.selectedInputRange.max
+                    && val
+                    >= model.selectedInputRange.min
+            then
+                let
+                    mdl =
+                        { model | userInput = String.fromFloat val }
+                in
+                ( { model | calculatedValue = String.fromFloat (scaleLinear mdl) }, Cmd.none )
+
+            else
+                ( { model | calculatedValue = "Out of range..." }, Cmd.none )
 
 
 scaleLinear : Model -> Float
@@ -205,7 +216,3 @@ view model =
             [ text ("Scaled value: " ++ model.calculatedValue) ]
         , p [ class "f6" ] [ text "(Calc2.elm)" ]
         ]
-
-
-
--- todo: page should update calculated value on input/output range select change
