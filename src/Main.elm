@@ -31,11 +31,12 @@ type alias Model =
     }
 
 
-type alias RangeItem =
-    { name : String
-    , min : Float
-    , max : Float
-    }
+
+-- type alias RangeItem =
+--     { name : String
+--     , min : Float
+--     , max : Float
+--     }
 
 
 init : Model
