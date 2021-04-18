@@ -10536,11 +10536,19 @@ var $elm$core$Basics$never = function (_v0) {
 	}
 };
 var $elm$browser$Browser$element = _Browser_element;
+var $author$project$Calc2$RangeItem = F3(
+	function (name, min, max) {
+		return {max: max, min: min, name: name};
+	});
+var $author$project$Calc2$Torr = {$: 'Torr'};
 var $author$project$Calc2$initialModel = {
-	calculatedValue: '4',
-	selectedInputRange: {max: 20, min: 4, name: '4 to 20mA'},
-	selectedOutputRange: {max: 2500, min: 800, name: '800 to 2500 °C'},
-	userInput: '4'
+	calculatedPressureValue: 'Voltage...',
+	calculatedRangeValue: '4',
+	selectedInputRange: A3($author$project$Calc2$RangeItem, '4 to 20mA', 4, 20),
+	selectedOutputRange: A3($author$project$Calc2$RangeItem, '800 to 2500 °C', 800, 2500),
+	selectedPressureScale: $author$project$Calc2$Torr,
+	userLinearInput: '4',
+	userLogInput: '0'
 };
 var $elm$core$String$toFloat = _String_toFloat;
 var $author$project$Calc2$scaleLinear = function (model) {
@@ -10549,7 +10557,7 @@ var $author$project$Calc2$scaleLinear = function (model) {
 	var xmin = model.selectedInputRange.min;
 	var xmax = model.selectedInputRange.max;
 	var inp = function () {
-		var _v0 = $elm$core$String$toFloat(model.userInput);
+		var _v0 = $elm$core$String$toFloat(model.userLinearInput);
 		if (_v0.$ === 'Nothing') {
 			return 0;
 		} else {
@@ -10559,13 +10567,13 @@ var $author$project$Calc2$scaleLinear = function (model) {
 	}();
 	return (((ymax - ymin) / (xmax - xmin)) * (inp - xmin)) + ymin;
 };
-var $author$project$Calc2$updateScaledValue = function (model) {
-	var _v0 = $elm$core$String$toFloat(model.userInput);
+var $author$project$Calc2$updateLinearScaledValue = function (model) {
+	var _v0 = $elm$core$String$toFloat(model.userLinearInput);
 	if (_v0.$ === 'Nothing') {
 		return _Utils_Tuple2(
 			_Utils_update(
 				model,
-				{calculatedValue: 'Error'}),
+				{calculatedRangeValue: 'Error'}),
 			$elm$core$Platform$Cmd$none);
 	} else {
 		var val = _v0.a;
@@ -10573,13 +10581,13 @@ var $author$project$Calc2$updateScaledValue = function (model) {
 			var mdl = _Utils_update(
 				model,
 				{
-					userInput: $elm$core$String$fromFloat(val)
+					userLinearInput: $elm$core$String$fromFloat(val)
 				});
 			return _Utils_Tuple2(
 				_Utils_update(
 					model,
 					{
-						calculatedValue: $elm$core$String$fromFloat(
+						calculatedRangeValue: $elm$core$String$fromFloat(
 							$author$project$Calc2$scaleLinear(mdl))
 					}),
 				$elm$core$Platform$Cmd$none);
@@ -10587,20 +10595,16 @@ var $author$project$Calc2$updateScaledValue = function (model) {
 			return _Utils_Tuple2(
 				_Utils_update(
 					model,
-					{calculatedValue: 'Out of range...'}),
+					{calculatedRangeValue: 'Out of range...'}),
 				$elm$core$Platform$Cmd$none);
 		}
 	}
 };
 var $author$project$Calc2$init = function (_v0) {
-	return $author$project$Calc2$updateScaledValue($author$project$Calc2$initialModel);
+	return $author$project$Calc2$updateLinearScaledValue($author$project$Calc2$initialModel);
 };
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
-var $author$project$Calc2$RangeItem = F3(
-	function (name, min, max) {
-		return {max: max, min: min, name: name};
-	});
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
 		return A3(
@@ -10647,52 +10651,110 @@ var $author$project$Calc2$getSelectedRangeItem = function (value) {
 		return val;
 	}
 };
+var $elm$core$Debug$log = _Debug_log;
+var $elm$core$Basics$pow = _Basics_pow;
+var $author$project$Calc2$scaleLogarithmic = F2(
+	function (scale, value) {
+		switch (scale.$) {
+			case 'Torr':
+				return A2($elm$core$Basics$pow, 10, value - 6);
+			case 'Millibar':
+				return A2($elm$core$Basics$pow, 10, value - 6);
+			default:
+				return A2($elm$core$Basics$pow, 10, value - 4);
+		}
+	});
+var $author$project$Calc2$updateLogScaledValue = function (model) {
+	var input = function () {
+		var _v0 = $elm$core$String$toFloat(model.userLogInput);
+		if (_v0.$ === 'Nothing') {
+			return 'Error...';
+		} else {
+			var val = _v0.a;
+			return $elm$core$String$fromFloat(
+				A2($author$project$Calc2$scaleLogarithmic, model.selectedPressureScale, val));
+		}
+	}();
+	return _Utils_Tuple2(
+		_Utils_update(
+			model,
+			{calculatedPressureValue: input}),
+		$elm$core$Platform$Cmd$none);
+};
 var $author$project$Calc2$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 'UserInputChange':
+			case 'UserLinearInputChange':
 				var value = msg.a;
-				return $author$project$Calc2$updateScaledValue(
+				return $author$project$Calc2$updateLinearScaledValue(
 					_Utils_update(
 						model,
-						{userInput: value}));
+						{userLinearInput: value}));
 			case 'InputRangeSelected':
 				var value = msg.a;
-				return $author$project$Calc2$updateScaledValue(
+				return $author$project$Calc2$updateLinearScaledValue(
 					_Utils_update(
 						model,
 						{
 							selectedInputRange: $author$project$Calc2$getSelectedRangeItem(value)
 						}));
-			default:
+			case 'OutputRangeSelected':
 				var value = msg.a;
-				return $author$project$Calc2$updateScaledValue(
+				return $author$project$Calc2$updateLinearScaledValue(
 					_Utils_update(
 						model,
 						{
 							selectedOutputRange: $author$project$Calc2$getSelectedRangeItem(value)
 						}));
+			case 'UserLogInputChange':
+				var value = msg.a;
+				return $author$project$Calc2$updateLogScaledValue(
+					_Utils_update(
+						model,
+						{userLogInput: value}));
+			default:
+				var value = msg.a;
+				var _v1 = A2($elm$core$Debug$log, 'value: ', value);
+				return $author$project$Calc2$updateLogScaledValue(
+					_Utils_update(
+						model,
+						{selectedPressureScale: value}));
 		}
 	});
 var $author$project$Calc2$InputRangeSelected = function (a) {
 	return {$: 'InputRangeSelected', a: a};
 };
+var $author$project$Calc2$Millibar = {$: 'Millibar'};
 var $author$project$Calc2$OutputRangeSelected = function (a) {
 	return {$: 'OutputRangeSelected', a: a};
 };
-var $author$project$Calc2$UserInputChange = function (a) {
-	return {$: 'UserInputChange', a: a};
+var $author$project$Calc2$Pascal = {$: 'Pascal'};
+var $author$project$Calc2$UserLinearInputChange = function (a) {
+	return {$: 'UserLinearInputChange', a: a};
+};
+var $author$project$Calc2$UserLogInputChange = function (a) {
+	return {$: 'UserLogInputChange', a: a};
 };
 var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
 var $elm$html$Html$label = _VirtualDom_node('label');
+var $author$project$Calc2$segmentFooter = A2(
+	$elm$html$Html$p,
+	_List_fromArray(
+		[
+			$elm$html$Html$Attributes$class('f6')
+		]),
+	_List_fromArray(
+		[
+			$elm$html$Html$text('(Calc2.elm)')
+		]));
 var $author$project$Calc2$onSelectedChange = function (msg) {
 	return A2(
 		$elm$html$Html$Events$on,
 		'change',
 		A2($elm$json$Json$Decode$map, msg, $elm$html$Html$Events$targetValue));
 };
-var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $elm$html$Html$select = _VirtualDom_node('select');
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
@@ -10703,7 +10765,7 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 			$elm$json$Json$Encode$bool(bool));
 	});
 var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
-var $author$project$Calc2$rangeOption = F2(
+var $author$project$Calc2$viewRangeOption = F2(
 	function (defaultOption, item) {
 		return _Utils_eq(item.name, defaultOption) ? A2(
 			$elm$html$Html$option,
@@ -10722,123 +10784,177 @@ var $author$project$Calc2$rangeOption = F2(
 					$elm$html$Html$text(item.name)
 				]));
 	});
-var $elm$html$Html$select = _VirtualDom_node('select');
+var $author$project$Calc2$viewDropdown = F2(
+	function (msg, defaultOption) {
+		return A2(
+			$elm$html$Html$p,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('ml2')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$label,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text('I want to know: ')
+						])),
+					A2(
+					$elm$html$Html$select,
+					_List_fromArray(
+						[
+							$author$project$Calc2$onSelectedChange(msg)
+						]),
+					A2(
+						$elm$core$List$map,
+						$author$project$Calc2$viewRangeOption(defaultOption),
+						$author$project$Calc2$rangeItem))
+				]));
+	});
+var $author$project$Calc2$SelectedScale = function (a) {
+	return {$: 'SelectedScale', a: a};
+};
+var $elm$html$Html$Attributes$checked = $elm$html$Html$Attributes$boolProperty('checked');
+var $elm$html$Html$Attributes$name = $elm$html$Html$Attributes$stringProperty('name');
+var $author$project$Calc2$pressureScaleToString = function (item) {
+	switch (item.$) {
+		case 'Torr':
+			return 'torr';
+		case 'Millibar':
+			return 'millibar';
+		default:
+			return 'pascal';
+	}
+};
+var $author$project$Calc2$viewRadioButtons = F2(
+	function (model, scale) {
+		return A2(
+			$elm$html$Html$label,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$input,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$type_('radio'),
+							$elm$html$Html$Attributes$name('pressureScale'),
+							$elm$html$Html$Attributes$checked(
+							_Utils_eq(scale, model.selectedPressureScale)),
+							$elm$html$Html$Events$onClick(
+							$author$project$Calc2$SelectedScale(scale))
+						]),
+					_List_Nil),
+					$elm$html$Html$text(
+					$author$project$Calc2$pressureScaleToString(scale))
+				]));
+	});
+var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $author$project$Calc2$viewUserInput = F3(
+	function (inValue, outValue, msg) {
+		return A2(
+			$elm$html$Html$label,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$input,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$placeholder('input...'),
+							$elm$html$Html$Attributes$value(inValue),
+							$elm$html$Html$Events$onInput(msg)
+						]),
+					_List_Nil),
+					A2(
+					$elm$html$Html$span,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('bg-yellow black ph2 ma1')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Scaled value: ' + outValue)
+						]))
+				]));
+	});
 var $author$project$Calc2$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class('sans-serif measure bg-mid-gray yellow ma1')
-			]),
+		_List_Nil,
 		_List_fromArray(
 			[
 				A2(
-				$elm$html$Html$h2,
+				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('ml2')
+						$elm$html$Html$Attributes$class('sans-serif bg-mid-gray yellow ma1')
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Linear Scaler')
+						A2(
+						$elm$html$Html$h2,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('ml2')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Linear Scaler')
+							])),
+						A2($author$project$Calc2$viewDropdown, $author$project$Calc2$OutputRangeSelected, '800 to 2500 °C'),
+						A2($author$project$Calc2$viewDropdown, $author$project$Calc2$InputRangeSelected, '4 to 20 mA'),
+						A2($elm$html$Html$hr, _List_Nil, _List_Nil),
+						A2(
+						$elm$html$Html$label,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('ml2')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Input: ')
+							])),
+						A3($author$project$Calc2$viewUserInput, model.userLinearInput, model.calculatedRangeValue, $author$project$Calc2$UserLinearInputChange),
+						$author$project$Calc2$segmentFooter
 					])),
 				A2(
-				$elm$html$Html$p,
+				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('ml2')
+						$elm$html$Html$Attributes$class('sans-serif bg-mid-gray yellow ma1')
 					]),
 				_List_fromArray(
 					[
+						A2(
+						$elm$html$Html$h2,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Logarithmic Scaler')
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('flex flex-column ma1')
+							]),
+						A2(
+							$elm$core$List$map,
+							$author$project$Calc2$viewRadioButtons(model),
+							_List_fromArray(
+								[$author$project$Calc2$Torr, $author$project$Calc2$Millibar, $author$project$Calc2$Pascal]))),
 						A2(
 						$elm$html$Html$label,
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('I want to know: ')
+								$elm$html$Html$text('Input Voltage:')
 							])),
-						A2(
-						$elm$html$Html$select,
-						_List_fromArray(
-							[
-								$author$project$Calc2$onSelectedChange($author$project$Calc2$OutputRangeSelected)
-							]),
-						function () {
-							var defaultOption = '800 to 2500 °C';
-							return A2(
-								$elm$core$List$map,
-								$author$project$Calc2$rangeOption(defaultOption),
-								$author$project$Calc2$rangeItem);
-						}())
-					])),
-				A2(
-				$elm$html$Html$p,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('ml2')
-					]),
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$label,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text('When I know: ')
-							])),
-						A2(
-						$elm$html$Html$select,
-						_List_fromArray(
-							[
-								$author$project$Calc2$onSelectedChange($author$project$Calc2$InputRangeSelected)
-							]),
-						function () {
-							var defaultOption = '4 to 20 mA';
-							return A2(
-								$elm$core$List$map,
-								$author$project$Calc2$rangeOption(defaultOption),
-								$author$project$Calc2$rangeItem);
-						}())
-					])),
-				A2($elm$html$Html$hr, _List_Nil, _List_Nil),
-				A2(
-				$elm$html$Html$label,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('ml2')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Input: ')
-					])),
-				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$placeholder('input'),
-						$elm$html$Html$Attributes$value(model.userInput),
-						$elm$html$Html$Events$onInput($author$project$Calc2$UserInputChange)
-					]),
-				_List_Nil),
-				A2(
-				$elm$html$Html$span,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('bg-yellow black ph2 ma1')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Scaled value: ' + model.calculatedValue)
-					])),
-				A2(
-				$elm$html$Html$p,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('f6')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('(Calc2.elm)')
+						A3($author$project$Calc2$viewUserInput, model.userLogInput, model.calculatedPressureValue, $author$project$Calc2$UserLogInputChange),
+						$author$project$Calc2$segmentFooter
 					]))
 			]));
 };
@@ -10852,7 +10968,7 @@ var $author$project$Calc2$main = $elm$browser$Browser$element(
 		view: $author$project$Calc2$view
 	});
 _Platform_export({'Calc2':{'init':$author$project$Calc2$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Calc2.Msg","aliases":{},"unions":{"Calc2.Msg":{"args":[],"tags":{"UserInputChange":["String.String"],"InputRangeSelected":["String.String"],"OutputRangeSelected":["String.String"]}},"String.String":{"args":[],"tags":{"String":[]}}}}})}});
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Calc2.Msg","aliases":{},"unions":{"Calc2.Msg":{"args":[],"tags":{"UserLinearInputChange":["String.String"],"InputRangeSelected":["String.String"],"OutputRangeSelected":["String.String"],"UserLogInputChange":["String.String"],"SelectedScale":["Calc2.PressureScale"]}},"Calc2.PressureScale":{"args":[],"tags":{"Torr":[],"Millibar":[],"Pascal":[]}},"String.String":{"args":[],"tags":{"String":[]}}}}})}});
 
 //////////////////// HMR BEGIN ////////////////////
 

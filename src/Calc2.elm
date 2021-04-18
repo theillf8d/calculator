@@ -1,9 +1,9 @@
 module Calc2 exposing (..)
 
 import Browser
-import Html exposing (Attribute, Html, div, h2, hr, input, label, option, p, select, span, text)
+import Html exposing (Attribute, Html, a, div, h2, hr, input, label, option, p, select, span, text)
 import Html.Attributes exposing (..)
-import Html.Events exposing (on, onInput)
+import Html.Events exposing (on, onClick, onInput)
 import Json.Decode as Decode
 
 
@@ -26,10 +26,13 @@ main =
 
 
 type alias Model =
-    { userInput : String
+    { userLinearInput : String
+    , userLogInput : String
     , selectedInputRange : RangeItem
     , selectedOutputRange : RangeItem
-    , calculatedValue : String
+    , selectedPressureScale : PressureScale
+    , calculatedRangeValue : String
+    , calculatedPressureValue : String
     }
 
 
@@ -53,18 +56,27 @@ rangeItem =
     ]
 
 
+type PressureScale
+    = Torr
+    | Millibar
+    | Pascal
+
+
 initialModel : Model
 initialModel =
-    { userInput = "4"
-    , selectedInputRange = { name = "4 to 20mA", min = 4, max = 20 }
-    , selectedOutputRange = { name = "800 to 2500 °C", min = 800, max = 2500 }
-    , calculatedValue = "4"
+    { userLinearInput = "4"
+    , userLogInput = "0"
+    , selectedInputRange = RangeItem "4 to 20mA" 4 20
+    , selectedOutputRange = RangeItem "800 to 2500 °C" 800 2500
+    , selectedPressureScale = Torr
+    , calculatedRangeValue = "4"
+    , calculatedPressureValue = "Voltage..."
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    updateScaledValue initialModel
+    updateLinearScaledValue initialModel
 
 
 
@@ -72,22 +84,34 @@ init _ =
 
 
 type Msg
-    = UserInputChange String
+    = UserLinearInputChange String
     | InputRangeSelected String
     | OutputRangeSelected String
+    | UserLogInputChange String
+    | SelectedScale PressureScale
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        UserInputChange value ->
-            updateScaledValue { model | userInput = value }
+        UserLinearInputChange value ->
+            updateLinearScaledValue { model | userLinearInput = value }
 
         InputRangeSelected value ->
-            updateScaledValue { model | selectedInputRange = getSelectedRangeItem value }
+            updateLinearScaledValue { model | selectedInputRange = getSelectedRangeItem value }
 
         OutputRangeSelected value ->
-            updateScaledValue { model | selectedOutputRange = getSelectedRangeItem value }
+            updateLinearScaledValue { model | selectedOutputRange = getSelectedRangeItem value }
+
+        UserLogInputChange value ->
+            updateLogScaledValue { model | userLogInput = value }
+
+        SelectedScale value ->
+            let
+                _ =
+                    Debug.log "value: " value
+            in
+            updateLogScaledValue { model | selectedPressureScale = value }
 
 
 getSelectedRangeItem : String -> RangeItem
@@ -106,11 +130,11 @@ onSelectedChange msg =
     on "change" (Decode.map msg Html.Events.targetValue)
 
 
-updateScaledValue : Model -> ( Model, Cmd Msg )
-updateScaledValue model =
-    case String.toFloat model.userInput of
+updateLinearScaledValue : Model -> ( Model, Cmd Msg )
+updateLinearScaledValue model =
+    case String.toFloat model.userLinearInput of
         Nothing ->
-            ( { model | calculatedValue = "Error" }, Cmd.none )
+            ( { model | calculatedRangeValue = "Error" }, Cmd.none )
 
         Just val ->
             if
@@ -121,12 +145,12 @@ updateScaledValue model =
             then
                 let
                     mdl =
-                        { model | userInput = String.fromFloat val }
+                        { model | userLinearInput = String.fromFloat val }
                 in
-                ( { model | calculatedValue = String.fromFloat (scaleLinear mdl) }, Cmd.none )
+                ( { model | calculatedRangeValue = String.fromFloat (scaleLinear mdl) }, Cmd.none )
 
             else
-                ( { model | calculatedValue = "Out of range..." }, Cmd.none )
+                ( { model | calculatedRangeValue = "Out of range..." }, Cmd.none )
 
 
 scaleLinear : Model -> Float
@@ -146,7 +170,7 @@ scaleLinear model =
 
         inp : Float
         inp =
-            case String.toFloat model.userInput of
+            case String.toFloat model.userLinearInput of
                 Nothing ->
                     0
 
@@ -156,12 +180,39 @@ scaleLinear model =
     (ymax - ymin) / (xmax - xmin) * (inp - xmin) + ymin
 
 
+updateLogScaledValue : Model -> ( Model, Cmd Msg )
+updateLogScaledValue model =
+    let
+        input =
+            case String.toFloat model.userLogInput of
+                Nothing ->
+                    "Error..."
+
+                Just val ->
+                    String.fromFloat (scaleLogarithmic model.selectedPressureScale val)
+    in
+    ( { model | calculatedPressureValue = input }, Cmd.none )
+
+
+scaleLogarithmic : PressureScale -> Float -> Float
+scaleLogarithmic scale value =
+    case scale of
+        Torr ->
+            10 ^ (value - 6)
+
+        Millibar ->
+            10 ^ (value - 6)
+
+        Pascal ->
+            10 ^ (value - 4)
+
+
 
 -- VIEW
 
 
-rangeOption : String -> RangeItem -> Html a
-rangeOption defaultOption item =
+viewRangeOption : String -> RangeItem -> Html a
+viewRangeOption defaultOption item =
     if item.name == defaultOption then
         option
             [ selected True ]
@@ -173,46 +224,83 @@ rangeOption defaultOption item =
             [ text item.name ]
 
 
+viewDropdown : (String -> Msg) -> String -> Html Msg
+viewDropdown msg defaultOption =
+    p [ class "ml2" ]
+        [ label [] [ text "I want to know: " ]
+        , select
+            [ onSelectedChange msg ]
+            (List.map (viewRangeOption defaultOption) rangeItem)
+        ]
+
+
+viewRadioButtons : Model -> PressureScale -> Html Msg
+viewRadioButtons model scale =
+    label []
+        [ input
+            [ type_ "radio"
+            , name "pressureScale"
+            , checked (scale == model.selectedPressureScale)
+            , onClick (SelectedScale scale)
+            ]
+            []
+        , text (pressureScaleToString scale)
+        ]
+
+
+viewUserInput : String -> String -> (String -> Msg) -> Html Msg
+viewUserInput inValue outValue msg =
+    label []
+        [ input
+            [ placeholder "input..."
+            , value inValue
+            , onInput msg --UserLinearInputChange
+            ]
+            []
+        , span [ class "bg-yellow black ph2 ma1" ]
+            [ text ("Scaled value: " ++ outValue) ]
+        ]
+
+
+segmentFooter : Html a
+segmentFooter =
+    p [ class "f6" ] [ text "(Calc2.elm)" ]
+
+
+pressureScaleToString : PressureScale -> String
+pressureScaleToString item =
+    case item of
+        Torr ->
+            "torr"
+
+        Millibar ->
+            "millibar"
+
+        Pascal ->
+            "pascal"
+
+
 view : Model -> Html Msg
 view model =
     div
-        [ class "sans-serif measure bg-mid-gray yellow ma1"
-        ]
-        [ h2 [ class "ml2" ] [ text "Linear Scaler" ]
-        , p [ class "ml2" ]
-            [ label [] [ text "I want to know: " ]
-            , select
-                [ onSelectedChange OutputRangeSelected ]
-                (let
-                    defaultOption =
-                        "800 to 2500 °C"
-                 in
-                 List.map (rangeOption defaultOption) rangeItem
-                )
+        []
+        [ div [ class "sans-serif bg-mid-gray yellow ma1" ]
+            [ h2 [ class "ml2" ] [ text "Linear Scaler" ]
+            , viewDropdown OutputRangeSelected "800 to 2500 °C"
+            , viewDropdown InputRangeSelected "4 to 20 mA"
+            , hr
+                []
+                []
+            , label [ class "ml2" ] [ text "Input: " ]
+            , viewUserInput model.userLinearInput model.calculatedRangeValue UserLinearInputChange
+            , segmentFooter
             ]
-        , p [ class "ml2" ]
-            [ label [] [ text "When I know: " ]
-            , select
-                [ onSelectedChange InputRangeSelected ]
-                (let
-                    defaultOption =
-                        "4 to 20 mA"
-                 in
-                 List.map (rangeOption defaultOption) rangeItem
-                )
+        , div [ class "sans-serif bg-mid-gray yellow ma1" ]
+            [ h2 [] [ text "Logarithmic Scaler" ]
+            , div [ class "flex flex-column ma1" ]
+                (List.map (viewRadioButtons model) [ Torr, Millibar, Pascal ])
+            , label [] [ text "Input Voltage:" ]
+            , viewUserInput model.userLogInput model.calculatedPressureValue UserLogInputChange
+            , segmentFooter
             ]
-        , hr
-            []
-            []
-        , label [ class "ml2" ] [ text "Input: " ]
-        , input
-            [ placeholder "input"
-            , value model.userInput
-            , onInput UserInputChange
-            ]
-            []
-        , span
-            [ class "bg-yellow black ph2 ma1" ]
-            [ text ("Scaled value: " ++ model.calculatedValue) ]
-        , p [ class "f6" ] [ text "(Calc2.elm)" ]
         ]
