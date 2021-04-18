@@ -1,7 +1,7 @@
 module Calc2 exposing (..)
 
 import Browser
-import Html exposing (Attribute, Html, a, div, fieldset, h2, hr, input, label, option, p, select, span, sub, table, td, text, tr)
+import Html exposing (Attribute, Html, div, h2, hr, input, label, option, p, select, span, sub, table, td, text, tr)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick, onInput)
 import Json.Decode as Decode
@@ -132,16 +132,16 @@ updateLinearScaledValue model =
         Nothing ->
             ( { model | calculatedRangeValue = "Error" }, Cmd.none )
 
-        Just val ->
+        Just value ->
             if
-                val
+                value
                     <= model.selectedInputRange.max
-                    && val
+                    && value
                     >= model.selectedInputRange.min
             then
                 let
                     mdl =
-                        { model | userLinearInput = String.fromFloat val }
+                        { model | userLinearInput = String.fromFloat value }
                 in
                 ( { model | calculatedRangeValue = String.fromFloat (scaleLinear mdl) }, Cmd.none )
 
@@ -274,7 +274,7 @@ pressureScaleToString item =
 
 viewCalculation : Html a
 viewCalculation =
-    p [ class "pa1 ma1" ]
+    p [ class "pa1 ma1 f6" ]
         [ span [] [ text "Calculation: (Y" ]
         , sub [] [ text "2" ]
         , span [] [ text " - " ]
