@@ -10576,12 +10576,12 @@ var $author$project$Calc2$updateLinearScaledValue = function (model) {
 				{calculatedRangeValue: 'Error'}),
 			$elm$core$Platform$Cmd$none);
 	} else {
-		var val = _v0.a;
-		if ((_Utils_cmp(val, model.selectedInputRange.max) < 1) && (_Utils_cmp(val, model.selectedInputRange.min) > -1)) {
+		var value = _v0.a;
+		if ((_Utils_cmp(value, model.selectedInputRange.max) < 1) && (_Utils_cmp(value, model.selectedInputRange.min) > -1)) {
 			var mdl = _Utils_update(
 				model,
 				{
-					userLinearInput: $elm$core$String$fromFloat(val)
+					userLinearInput: $elm$core$String$fromFloat(value)
 				});
 			return _Utils_Tuple2(
 				_Utils_update(
@@ -10754,7 +10754,7 @@ var $author$project$Calc2$viewCalculation = A2(
 	$elm$html$Html$p,
 	_List_fromArray(
 		[
-			$elm$html$Html$Attributes$class('pa1 ma1')
+			$elm$html$Html$Attributes$class('pa1 ma1 f6')
 		]),
 	_List_fromArray(
 		[
