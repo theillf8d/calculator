@@ -107,10 +107,6 @@ update msg model =
             updateLogScaledValue { model | userLogInput = value }
 
         SelectedScale value ->
-            let
-                _ =
-                    Debug.log "value: " value
-            in
             updateLogScaledValue { model | selectedPressureScale = value }
 
 
@@ -213,15 +209,9 @@ scaleLogarithmic scale value =
 
 viewRangeOption : String -> RangeItem -> Html a
 viewRangeOption defaultOption item =
-    if item.name == defaultOption then
-        option
-            [ selected True ]
-            [ text item.name ]
-
-    else
-        option
-            []
-            [ text item.name ]
+    option
+        [ selected (item.name == defaultOption) ]
+        [ text item.name ]
 
 
 viewDropdown : (String -> Msg) -> String -> Html Msg

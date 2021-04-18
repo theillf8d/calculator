@@ -10651,7 +10651,6 @@ var $author$project$Calc2$getSelectedRangeItem = function (value) {
 		return val;
 	}
 };
-var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Basics$pow = _Basics_pow;
 var $author$project$Calc2$scaleLogarithmic = F2(
 	function (scale, value) {
@@ -10714,7 +10713,6 @@ var $author$project$Calc2$update = F2(
 						{userLogInput: value}));
 			default:
 				var value = msg.a;
-				var _v1 = A2($elm$core$Debug$log, 'value: ', value);
 				return $author$project$Calc2$updateLogScaledValue(
 					_Utils_update(
 						model,
@@ -10767,18 +10765,13 @@ var $elm$html$Html$Attributes$boolProperty = F2(
 var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
 var $author$project$Calc2$viewRangeOption = F2(
 	function (defaultOption, item) {
-		return _Utils_eq(item.name, defaultOption) ? A2(
+		return A2(
 			$elm$html$Html$option,
 			_List_fromArray(
 				[
-					$elm$html$Html$Attributes$selected(true)
+					$elm$html$Html$Attributes$selected(
+					_Utils_eq(item.name, defaultOption))
 				]),
-			_List_fromArray(
-				[
-					$elm$html$Html$text(item.name)
-				])) : A2(
-			$elm$html$Html$option,
-			_List_Nil,
 			_List_fromArray(
 				[
 					$elm$html$Html$text(item.name)
