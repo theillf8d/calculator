@@ -10736,16 +10736,19 @@ var $author$project$Calc2$UserLogInputChange = function (a) {
 var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $elm$html$Html$hr = _VirtualDom_node('hr');
 var $elm$html$Html$label = _VirtualDom_node('label');
-var $author$project$Calc2$segmentFooter = A2(
-	$elm$html$Html$p,
-	_List_fromArray(
-		[
-			$elm$html$Html$Attributes$class('f6')
-		]),
-	_List_fromArray(
-		[
-			$elm$html$Html$text('(Calc2.elm)')
-		]));
+var $author$project$Calc2$segmentFooter = function (lblText) {
+	return A2(
+		$elm$html$Html$p,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('f6')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(lblText)
+			]));
+};
+var $elm$html$Html$table = _VirtualDom_node('table');
 var $author$project$Calc2$onSelectedChange = function (msg) {
 	return A2(
 		$elm$html$Html$Events$on,
@@ -10753,6 +10756,8 @@ var $author$project$Calc2$onSelectedChange = function (msg) {
 		A2($elm$json$Json$Decode$map, msg, $elm$html$Html$Events$targetValue));
 };
 var $elm$html$Html$select = _VirtualDom_node('select');
+var $elm$html$Html$td = _VirtualDom_node('td');
+var $elm$html$Html$tr = _VirtualDom_node('tr');
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
@@ -10777,33 +10782,39 @@ var $author$project$Calc2$viewRangeOption = F2(
 					$elm$html$Html$text(item.name)
 				]));
 	});
-var $author$project$Calc2$viewDropdown = F2(
-	function (msg, defaultOption) {
+var $author$project$Calc2$viewDropdown = F3(
+	function (msg, defaultOption, lblText) {
 		return A2(
-			$elm$html$Html$p,
+			$elm$html$Html$tr,
 			_List_fromArray(
 				[
-					$elm$html$Html$Attributes$class('ml2')
+					$elm$html$Html$Attributes$class('ml2 v-mid')
 				]),
 			_List_fromArray(
 				[
 					A2(
-					$elm$html$Html$label,
+					$elm$html$Html$td,
 					_List_Nil,
 					_List_fromArray(
 						[
-							$elm$html$Html$text('I want to know: ')
+							$elm$html$Html$text(lblText)
 						])),
 					A2(
-					$elm$html$Html$select,
+					$elm$html$Html$td,
+					_List_Nil,
 					_List_fromArray(
 						[
-							$author$project$Calc2$onSelectedChange(msg)
-						]),
-					A2(
-						$elm$core$List$map,
-						$author$project$Calc2$viewRangeOption(defaultOption),
-						$author$project$Calc2$rangeItem))
+							A2(
+							$elm$html$Html$select,
+							_List_fromArray(
+								[
+									$author$project$Calc2$onSelectedChange(msg)
+								]),
+							A2(
+								$elm$core$List$map,
+								$author$project$Calc2$viewRangeOption(defaultOption),
+								$author$project$Calc2$rangeItem))
+						]))
 				]));
 	});
 var $author$project$Calc2$SelectedScale = function (a) {
@@ -10814,11 +10825,11 @@ var $elm$html$Html$Attributes$name = $elm$html$Html$Attributes$stringProperty('n
 var $author$project$Calc2$pressureScaleToString = function (item) {
 	switch (item.$) {
 		case 'Torr':
-			return 'torr';
+			return 'Torr';
 		case 'Millibar':
-			return 'millibar';
+			return 'Millibar';
 		default:
-			return 'pascal';
+			return 'Pascal';
 	}
 };
 var $author$project$Calc2$viewRadioButtons = F2(
@@ -10897,33 +10908,64 @@ var $author$project$Calc2$view = function (model) {
 							[
 								$elm$html$Html$text('Linear Scaler')
 							])),
-						A2($author$project$Calc2$viewDropdown, $author$project$Calc2$OutputRangeSelected, '800 to 2500 °C'),
-						A2($author$project$Calc2$viewDropdown, $author$project$Calc2$InputRangeSelected, '4 to 20 mA'),
-						A2($elm$html$Html$hr, _List_Nil, _List_Nil),
 						A2(
-						$elm$html$Html$label,
+						$elm$html$Html$table,
+						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$class('ml2')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Input: ')
+								A3($author$project$Calc2$viewDropdown, $author$project$Calc2$OutputRangeSelected, '800 to 2500 °C', 'I want to know: '),
+								A3($author$project$Calc2$viewDropdown, $author$project$Calc2$InputRangeSelected, '4 to 20 mA', 'When I know: ')
 							])),
-						A3($author$project$Calc2$viewUserInput, model.userLinearInput, model.calculatedRangeValue, $author$project$Calc2$UserLinearInputChange),
-						$author$project$Calc2$segmentFooter
+						A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$p,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('pa1 ma1')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Calculation: (Ymax - Ymin) / (Xmax - Xmin) * (input - Xmin) + Ymin')
+									]))
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_Nil,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$hr, _List_Nil, _List_Nil),
+								A2(
+								$elm$html$Html$label,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('ml2')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Input: ')
+									])),
+								A3($author$project$Calc2$viewUserInput, model.userLinearInput, model.calculatedRangeValue, $author$project$Calc2$UserLinearInputChange),
+								$author$project$Calc2$segmentFooter('Linear Scaler (Calc2.elm)')
+							]))
 					])),
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('sans-serif bg-mid-gray yellow ma1')
+						$elm$html$Html$Attributes$class('sans-serif bg-mid-gray yellow ma1 fl w-100')
 					]),
 				_List_fromArray(
 					[
 						A2(
 						$elm$html$Html$h2,
-						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('ml2')
+							]),
 						_List_fromArray(
 							[
 								$elm$html$Html$text('Logarithmic Scaler')
@@ -10932,7 +10974,7 @@ var $author$project$Calc2$view = function (model) {
 						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$class('flex flex-column ma1')
+								$elm$html$Html$Attributes$class('flex flex-column ma1 pa1')
 							]),
 						A2(
 							$elm$core$List$map,
@@ -10947,7 +10989,7 @@ var $author$project$Calc2$view = function (model) {
 								$elm$html$Html$text('Input Voltage:')
 							])),
 						A3($author$project$Calc2$viewUserInput, model.userLogInput, model.calculatedPressureValue, $author$project$Calc2$UserLogInputChange),
-						$author$project$Calc2$segmentFooter
+						$author$project$Calc2$segmentFooter('Logarithmic Scaler (Calc2.elm)')
 					]))
 			]));
 };
