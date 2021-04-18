@@ -1,7 +1,7 @@
 module Calc2 exposing (..)
 
 import Browser
-import Html exposing (Attribute, Html, a, div, fieldset, h2, hr, input, label, option, p, select, span, table, td, text, tr)
+import Html exposing (Attribute, Html, a, div, fieldset, h2, hr, input, label, option, p, select, span, sub, table, td, text, tr)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick, onInput)
 import Json.Decode as Decode
@@ -272,6 +272,26 @@ pressureScaleToString item =
             "Pascal"
 
 
+viewCalculation : Html a
+viewCalculation =
+    p [ class "pa1 ma1" ]
+        [ span [] [ text "Calculation: (Y" ]
+        , sub [] [ text "2" ]
+        , span [] [ text " - " ]
+        , span [] [ text "Y" ]
+        , sub [] [ text "1" ]
+        , span [] [ text ") / (X" ]
+        , sub [] [ text "2" ]
+        , span [] [ text " - " ]
+        , span [] [ text "X" ]
+        , sub [] [ text "1" ]
+        , span [] [ text ") * (input - X" ]
+        , sub [] [ text "1" ]
+        , span [] [ text ") + Y" ]
+        , sub [] [ text "1" ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
     div
@@ -282,7 +302,7 @@ view model =
                 [ viewDropdown OutputRangeSelected "800 to 2500 °C" "I want to know: "
                 , viewDropdown InputRangeSelected "4 to 20 mA" "When I know: "
                 ]
-            , div [] [ p [ class "pa1 ma1" ] [ text "Calculation: (Ymax - Ymin) / (Xmax - Xmin) * (input - Xmin) + Ymin" ] ]
+            , viewCalculation
             , div []
                 [ hr
                     []

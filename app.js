@@ -10749,6 +10749,114 @@ var $author$project$Calc2$segmentFooter = function (lblText) {
 			]));
 };
 var $elm$html$Html$table = _VirtualDom_node('table');
+var $elm$html$Html$sub = _VirtualDom_node('sub');
+var $author$project$Calc2$viewCalculation = A2(
+	$elm$html$Html$p,
+	_List_fromArray(
+		[
+			$elm$html$Html$Attributes$class('pa1 ma1')
+		]),
+	_List_fromArray(
+		[
+			A2(
+			$elm$html$Html$span,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Calculation: (Y')
+				])),
+			A2(
+			$elm$html$Html$sub,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('2')
+				])),
+			A2(
+			$elm$html$Html$span,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text(' - ')
+				])),
+			A2(
+			$elm$html$Html$span,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Y')
+				])),
+			A2(
+			$elm$html$Html$sub,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('1')
+				])),
+			A2(
+			$elm$html$Html$span,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text(') / (X')
+				])),
+			A2(
+			$elm$html$Html$sub,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('2')
+				])),
+			A2(
+			$elm$html$Html$span,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text(' - ')
+				])),
+			A2(
+			$elm$html$Html$span,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('X')
+				])),
+			A2(
+			$elm$html$Html$sub,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('1')
+				])),
+			A2(
+			$elm$html$Html$span,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text(') * (input - X')
+				])),
+			A2(
+			$elm$html$Html$sub,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('1')
+				])),
+			A2(
+			$elm$html$Html$span,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text(') + Y')
+				])),
+			A2(
+			$elm$html$Html$sub,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('1')
+				]))
+		]));
 var $author$project$Calc2$onSelectedChange = function (msg) {
 	return A2(
 		$elm$html$Html$Events$on,
@@ -10916,22 +11024,7 @@ var $author$project$Calc2$view = function (model) {
 								A3($author$project$Calc2$viewDropdown, $author$project$Calc2$OutputRangeSelected, '800 to 2500 °C', 'I want to know: '),
 								A3($author$project$Calc2$viewDropdown, $author$project$Calc2$InputRangeSelected, '4 to 20 mA', 'When I know: ')
 							])),
-						A2(
-						$elm$html$Html$div,
-						_List_Nil,
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$p,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$class('pa1 ma1')
-									]),
-								_List_fromArray(
-									[
-										$elm$html$Html$text('Calculation: (Ymax - Ymin) / (Xmax - Xmin) * (input - Xmin) + Ymin')
-									]))
-							])),
+						$author$project$Calc2$viewCalculation,
 						A2(
 						$elm$html$Html$div,
 						_List_Nil,
