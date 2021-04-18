@@ -1,7 +1,7 @@
 module Calc2 exposing (..)
 
 import Browser
-import Html exposing (Attribute, Html, a, div, h2, hr, input, label, option, p, select, span, text)
+import Html exposing (Attribute, Html, a, div, fieldset, h2, hr, input, label, option, p, select, span, table, td, text, tr)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onClick, onInput)
 import Json.Decode as Decode
@@ -214,13 +214,15 @@ viewRangeOption defaultOption item =
         [ text item.name ]
 
 
-viewDropdown : (String -> Msg) -> String -> Html Msg
-viewDropdown msg defaultOption =
-    p [ class "ml2" ]
-        [ label [] [ text "I want to know: " ]
-        , select
-            [ onSelectedChange msg ]
-            (List.map (viewRangeOption defaultOption) rangeItem)
+viewDropdown : (String -> Msg) -> String -> String -> Html Msg
+viewDropdown msg defaultOption lblText =
+    tr [ class "ml2 v-mid" ]
+        [ td [] [ text lblText ]
+        , td []
+            [ select
+                [ onSelectedChange msg ]
+                (List.map (viewRangeOption defaultOption) rangeItem)
+            ]
         ]
 
 
@@ -244,7 +246,7 @@ viewUserInput inValue outValue msg =
         [ input
             [ placeholder "input..."
             , value inValue
-            , onInput msg --UserLinearInputChange
+            , onInput msg
             ]
             []
         , span [ class "bg-yellow black ph2 ma1" ]
@@ -252,22 +254,22 @@ viewUserInput inValue outValue msg =
         ]
 
 
-segmentFooter : Html a
-segmentFooter =
-    p [ class "f6" ] [ text "(Calc2.elm)" ]
+segmentFooter : String -> Html a
+segmentFooter lblText =
+    p [ class "f6" ] [ text lblText ]
 
 
 pressureScaleToString : PressureScale -> String
 pressureScaleToString item =
     case item of
         Torr ->
-            "torr"
+            "Torr"
 
         Millibar ->
-            "millibar"
+            "Millibar"
 
         Pascal ->
-            "pascal"
+            "Pascal"
 
 
 view : Model -> Html Msg
@@ -276,21 +278,26 @@ view model =
         []
         [ div [ class "sans-serif bg-mid-gray yellow ma1" ]
             [ h2 [ class "ml2" ] [ text "Linear Scaler" ]
-            , viewDropdown OutputRangeSelected "800 to 2500 °C"
-            , viewDropdown InputRangeSelected "4 to 20 mA"
-            , hr
-                []
-                []
-            , label [ class "ml2" ] [ text "Input: " ]
-            , viewUserInput model.userLinearInput model.calculatedRangeValue UserLinearInputChange
-            , segmentFooter
+            , table []
+                [ viewDropdown OutputRangeSelected "800 to 2500 °C" "I want to know: "
+                , viewDropdown InputRangeSelected "4 to 20 mA" "When I know: "
+                ]
+            , div [] [ p [ class "pa1 ma1" ] [ text "Calculation: (Ymax - Ymin) / (Xmax - Xmin) * (input - Xmin) + Ymin" ] ]
+            , div []
+                [ hr
+                    []
+                    []
+                , label [ class "ml2" ] [ text "Input: " ]
+                , viewUserInput model.userLinearInput model.calculatedRangeValue UserLinearInputChange
+                , segmentFooter "Linear Scaler (Calc2.elm)"
+                ]
             ]
-        , div [ class "sans-serif bg-mid-gray yellow ma1" ]
-            [ h2 [] [ text "Logarithmic Scaler" ]
-            , div [ class "flex flex-column ma1" ]
+        , div [ class "sans-serif bg-mid-gray yellow ma1 fl w-100" ]
+            [ h2 [ class "ml2" ] [ text "Logarithmic Scaler" ]
+            , div [ class "flex flex-column ma1 pa1" ]
                 (List.map (viewRadioButtons model) [ Torr, Millibar, Pascal ])
             , label [] [ text "Input Voltage:" ]
             , viewUserInput model.userLogInput model.calculatedPressureValue UserLogInputChange
-            , segmentFooter
+            , segmentFooter "Logarithmic Scaler (Calc2.elm)"
             ]
         ]
